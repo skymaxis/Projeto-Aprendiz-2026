@@ -211,12 +211,14 @@
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
     .kpi.premium-card .value { font-size:2rem; line-height:1.05; padding-right:2.2rem; }
     .kpi-hint { margin-top:.45rem; color:var(--muted); font-size:.84rem; max-width:32ch; }
-    .dashboard-header-row { display:flex; gap:1rem; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:1rem; }
+    .dashboard-main-card { position:relative; }
+    .dashboard-header-row { display:flex; gap:1rem; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:1rem; padding-right:3.65rem; }
     .dashboard-title-wrap h3 { margin:0; }
     .dashboard-title-wrap p { margin:.3rem 0 0; color:var(--muted); max-width:62ch; }
     .dashboard-controls { display:flex; gap:.65rem; align-items:flex-end; flex-wrap:wrap; margin-left:auto; }
     .chart-select-wrap { min-width:240px; }
     .icon-refresh { width:44px; height:44px; border-radius:999px; padding:0; display:grid; place-items:center; align-self:flex-start; }
+    .dashboard-main-refresh { position:absolute; top:1rem; right:1rem; z-index:2; }
     .icon-refresh svg { width:18px; height:18px; }
     .dashboard-side-list { display:grid; gap:.65rem; }
     .top-church-btn {
@@ -239,6 +241,12 @@
     .settings-pane-card p { margin:0; color:var(--muted); }
     .modal-list { display:grid; gap:.65rem; }
     .modal-list-item { padding:.85rem 1rem; border:1px solid var(--line); border-radius:16px; background:var(--card-2); }
+    .modal-list-button { width:100%; text-align:left; border:1px solid var(--line); border-radius:18px; background:linear-gradient(180deg, var(--card), var(--card-2)); color:var(--text); padding:.95rem 1rem; cursor:pointer; box-shadow:0 8px 18px rgba(15,23,42,.05); }
+    .modal-list-button:hover { transform:translateY(-1px); border-color:rgba(37,99,235,.28); }
+    .modal-list-button small { display:block; margin-top:.25rem; color:var(--muted); font-size:.84rem; }
+    .quick-view-grid { display:grid; gap:.85rem; }
+    .quick-view-card { border:1px solid var(--line); border-radius:18px; padding:1rem; background:var(--card-2); }
+    .quick-view-card .badges { margin-top:.5rem; }
     .student-card { padding:1.1rem 1.15rem; border-radius:22px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
     .student-head { display:grid; grid-template-columns:auto 1fr auto; gap:.9rem; align-items:start; }
     .student-avatar { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:800; box-shadow:var(--shadow); overflow:hidden; }
@@ -778,7 +786,7 @@
           </div>
 
           <div class="grid">
-            <div class="card premium-card span-8">
+            <div class="card premium-card span-8 dashboard-main-card">
               <div class="dashboard-header-row">
                 <div class="dashboard-title-wrap">
                   <h3>Comparativo principal</h3>
@@ -786,10 +794,10 @@
                 </div>
                 <div class="dashboard-controls">
                   <div class="field-group chart-select-wrap"><label>Forma do gráfico</label><select id="dashboardChartType">${chartTypes.map(t=>`<option value="${t.value}">${t.label}</option>`).join('')}</select></div>
-                  <button class="btn secondary icon-refresh" id="btnRefreshDashboard" title="Atualizar dashboard" aria-label="Atualizar dashboard">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 12.65-5.65Z"/></svg>
-                  </button>
                 </div>
+                <button class="btn secondary icon-refresh dashboard-main-refresh" id="btnRefreshDashboard" title="Atualizar dashboard" aria-label="Atualizar dashboard">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 12.65-5.65Z"/></svg>
+                </button>
               </div>
               <div class="chart-box"><canvas id="dashboardChart"></canvas></div>
             </div>
@@ -850,24 +858,40 @@
     function handleDashboardCardAction(kind) {
       const year = new Date().getFullYear();
       if (kind === 'students') {
-        const items = sortBy(state.students.map(normalizeStudent), 'nome').map(s => `${s.nome} — ${s.igreja || 'Sem igreja'}`);
-        return openInfoListModal('Alunos inscritos', 'Lista alfabética dos alunos cadastrados no sistema.', items);
+        const items = sortBy(state.students.map(normalizeStudent), 'nome').map(s => ({
+          label: s.nome,
+          sublabel: `${s.igreja || 'Sem igreja'}${s.email ? ` • ${s.email}` : ''}`,
+          action: `student:${s.id}`
+        }));
+        return openActionListModal('Alunos inscritos', 'Lista alfabética dos alunos cadastrados no sistema. Toque em um nome para abrir a ficha rápida.', items);
       }
       if (kind === 'churches') {
-        const items = [...new Set(state.students.map(s => (s.igreja || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-        return openInfoListModal('Igrejas com inscritos', 'Igrejas com pelo menos um membro inscrito.', items);
+        const items = [...new Set(state.students.map(s => (s.igreja || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(name => ({
+          label: name,
+          sublabel: `${state.students.filter(s => (s.igreja || '').trim() === name).length} inscrito(s)`,
+          action: `church:${name}`
+        }));
+        return openActionListModal('Igrejas com inscritos', 'Igrejas com pelo menos um membro inscrito. Toque em uma igreja para ver os alunos vinculados.', items);
       }
       if (kind === 'classes') {
-        const items = sortBy(state.classes.filter(c => !c.ano || String(c.ano) === String(year)), 'nome').map(c => `${c.nome} — ${c.igreja || 'Sem igreja'} — ${(c.inscritos || []).length} inscrito(s)`);
-        return openInfoListModal(`Turmas cadastradas em ${year}`, 'Turmas disponíveis para o ano corrente.', items);
+        const items = sortBy(state.classes.filter(c => !c.ano || String(c.ano) === String(year)), 'nome').map(c => ({
+          label: c.nome,
+          sublabel: `${c.igreja || 'Sem igreja'} • ${(c.inscritos || []).length} inscrito(s)`,
+          action: `class:${c.id}`
+        }));
+        return openActionListModal(`Turmas cadastradas em ${year}`, 'Turmas disponíveis para o ano corrente. Toque em uma turma para abrir a visualização rápida.', items);
       }
       if (kind === 'lessons') {
         const items = sortBy(state.lessons.filter(l => (l.data || '').startsWith(String(year))), 'data').map(l => {
           const turma = state.classes.find(c => c.id === l.turma_id)?.nome || 'Sem turma';
           const data = l.data ? new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data';
-          return `${data} — ${l.titulo} — ${turma}`;
+          return {
+            label: l.titulo,
+            sublabel: `${data} • ${turma}`,
+            action: `lesson:${l.id}`
+          };
         });
-        return openInfoListModal(`Aulas cadastradas em ${year}`, 'Programações registradas para o ano corrente.', items);
+        return openActionListModal(`Aulas cadastradas em ${year}`, 'Programações registradas para o ano corrente. Toque em uma aula para abrir a visualização rápida.', items);
       }
     }
     function openSimpleInfoModal(title, text) {
@@ -882,9 +906,12 @@
       $('#btnCloseEntity').onclick = closeEntityModal;
     }
     function openChurchStudentsModal(churchName) {
-      const items = sortBy(state.students.map(normalizeStudent).filter(s => (s.igreja || 'Não informado') === churchName), 'nome')
-        .map(s => `${s.nome} — ${formatPhoneDisplay(s)}${s.email ? ` — ${s.email}` : ''}`);
-      openInfoListModal(`Alunos da igreja: ${churchName}`, 'Visualização rápida dos alunos vinculados a esta igreja.', items);
+      const students = sortBy(state.students.map(normalizeStudent).filter(s => (s.igreja || 'Não informado') === churchName), 'nome');
+      openActionListModal(`Alunos da igreja: ${churchName}`, 'Visualização rápida dos alunos vinculados a esta igreja.', students.map(s => ({
+        label: s.nome,
+        sublabel: `${formatPhoneDisplay(s)}${s.email ? ` • ${s.email}` : ''}`,
+        action: `student:${s.id}`
+      })));
     }
     function openInfoListModal(title, subtitle, items) {
       $('#entityModalContent').innerHTML = `
@@ -898,6 +925,138 @@
       `;
       $('#entityModal').classList.add('open');
       $('#btnCloseEntity').onclick = closeEntityModal;
+    }
+    function openActionListModal(title, subtitle, items) {
+      $('#entityModalContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
+          <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">${subtitle}</p></div>
+          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+        </div>
+        <div class="modal-list">
+          ${items.length ? items.map(item => `<button class="modal-list-button" data-modal-action="${item.action}"><strong>${item.label}</strong>${item.sublabel ? `<small>${item.sublabel}</small>` : ''}</button>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
+        </div>
+      `;
+      $('#entityModal').classList.add('open');
+      $('#btnCloseEntity').onclick = closeEntityModal;
+      $$('#entityModalContent [data-modal-action]').forEach(btn => btn.onclick = () => handleModalAction(btn.dataset.modalAction));
+    }
+    function handleModalAction(action) {
+      const [kind, ...rest] = action.split(':');
+      const id = rest.join(':');
+      if (kind === 'student') return openStudentQuickView(id);
+      if (kind === 'church') return openChurchStudentsModal(id);
+      if (kind === 'class') return openClassQuickView(id);
+      if (kind === 'lesson') return openLessonQuickView(id);
+    }
+    function openStudentQuickView(studentId) {
+      const s = normalizeStudent(state.students.find(x => x.id === studentId) || {});
+      if (!s.id) return;
+      const initials = (s.nome || 'A').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+      $('#entityModalContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
+          <div><h2 style="margin:0;">${s.nome}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida do cadastro do aluno.</p></div>
+          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+        </div>
+        <div class="quick-view-grid">
+          <div class="item student-card">
+            <div class="student-head">
+              <div class="student-avatar">${s.foto_url ? `<img src="${s.foto_url}" alt="Foto de ${s.nome}">` : initials}</div>
+              <div class="student-meta">
+                <div class="item-title">${s.nome}</div>
+                <div class="muted">${s.igreja || 'Sem igreja'} • ${s.email || 'Sem e-mail'}</div>
+                <div class="muted">Telefone: ${formatPhoneDisplay(s)} • Pastor: ${s.pastor_nome || 'Não informado'}</div>
+                <div class="badges">
+                  <span class="badge">${s.status || 'Ativo'}</span>
+                  <span class="badge">${s.faixa_etaria || 'Faixa etária pendente'}</span>
+                  <span class="badge">${s.instrumento || 'Bateria'}</span>
+                </div>
+              </div>
+              <div class="student-code">#${s.codigo}</div>
+            </div>
+            <div class="quick-view-card">
+              <div class="muted"><strong>Região:</strong> ${s.regiao || 'Não informada'}</div>
+              <div class="muted"><strong>Pastor:</strong> ${s.pastor_nome || 'Não informado'} ${s.pastor_telefone ? `• ${s.pastor_telefone}` : ''}</div>
+              <div class="muted"><strong>Nascimento:</strong> ${s.data_nascimento ? new Date(s.data_nascimento+'T00:00:00').toLocaleDateString('pt-BR') : 'Não informado'} ${s.idade ? `• ${s.idade} ano(s)` : ''}</div>
+              <div class="muted"><strong>Observações:</strong> ${s.observacoes || 'Sem observações.'}</div>
+            </div>
+            <div class="actions-under">
+              <button class="btn secondary" id="modalStudentEdit" ${can('students','editor') ? '' : 'disabled'}>Editar</button>
+              <button class="btn secondary" id="modalStudentDocs">Documentos</button>
+              <a class="btn secondary" href="${s.whatsapp_url || '#'}" target="_blank" rel="noopener">WhatsApp</a>
+              <button class="btn secondary" id="modalStudentPdf">Ficha PDF</button>
+            </div>
+          </div>
+        </div>
+      `;
+      $('#entityModal').classList.add('open');
+      $('#btnCloseEntity').onclick = closeEntityModal;
+      $('#modalStudentEdit').onclick = ()=>openStudentModal(s);
+      $('#modalStudentDocs').onclick = ()=>openDocsModal(s);
+      $('#modalStudentPdf').onclick = ()=>printStudentPdf(s);
+    }
+    function openClassQuickView(classId) {
+      const c = state.classes.find(x => x.id === classId);
+      if (!c) return;
+      const inscritos = sortBy((c.inscritos || []).map(id => normalizeStudent(state.students.find(s => s.id === id) || {})).filter(s => s.id), 'nome');
+      $('#entityModalContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
+          <div><h2 style="margin:0;">${c.nome}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida da turma cadastrada.</p></div>
+          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+        </div>
+        <div class="quick-view-grid">
+          <div class="quick-view-card">
+            <div class="item-title">${c.nome}</div>
+            <div class="muted">${c.igreja || 'Sem igreja'} • Capacidade: ${c.capacidade || 0} • Inscritos: ${(c.inscritos || []).length}</div>
+            <div class="badges"><span class="badge">${c.status || 'Ativa'}</span><span class="badge">Vagas: ${Math.max((c.capacidade||0)-(c.inscritos||[]).length,0)}</span></div>
+            <div class="muted" style="margin-top:.7rem;">${c.descricao || 'Sem descrição.'}</div>
+          </div>
+          <div class="quick-view-card">
+            <div class="item-title" style="margin-bottom:.65rem;">Alunos da turma</div>
+            <div class="modal-list">
+              ${inscritos.length ? inscritos.map(s => `<button class="modal-list-button" data-modal-action="student:${s.id}"><strong>${s.nome}</strong><small>${s.igreja || 'Sem igreja'} • ${formatPhoneDisplay(s)}</small></button>`).join('') : '<div class="notice">Nenhum aluno vinculado.</div>'}
+            </div>
+          </div>
+          <div class="actions-under">
+            <button class="btn secondary" id="modalClassEdit" ${can('classes','editor') ? '' : 'disabled'}>Editar</button>
+            <button class="btn secondary" id="modalClassCall">Lista de chamada</button>
+            <button class="btn secondary" id="modalClassPdf">PDF da turma</button>
+          </div>
+        </div>
+      `;
+      $('#entityModal').classList.add('open');
+      $('#btnCloseEntity').onclick = closeEntityModal;
+      $('#modalClassEdit').onclick = ()=>openClassModal(c);
+      $('#modalClassCall').onclick = ()=>openAttendanceSheet(c);
+      $('#modalClassPdf').onclick = ()=>printClassPdf(c);
+      $$('#entityModalContent [data-modal-action]').forEach(btn => btn.onclick = () => handleModalAction(btn.dataset.modalAction));
+    }
+    function openLessonQuickView(lessonId) {
+      const l = state.lessons.find(x => x.id === lessonId);
+      if (!l) return;
+      const turma = state.classes.find(c => c.id === l.turma_id);
+      $('#entityModalContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
+          <div><h2 style="margin:0;">${l.titulo}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida da aula planejada.</p></div>
+          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+        </div>
+        <div class="quick-view-grid">
+          <div class="quick-view-card">
+            <div class="item-title">${l.titulo}</div>
+            <div class="muted">${l.data ? new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data'} • ${l.hora_inicio || '--:--'} às ${l.hora_fim || '--:--'}</div>
+            <div class="muted">Turma: ${turma?.nome || 'Sem turma'} • Local: ${l.local || 'Sem local'}</div>
+            <div class="badges"><span class="badge">${l.status || 'Planejada'}</span>${turma ? `<span class="badge">${turma.igreja || 'Sem igreja'}</span>` : ''}</div>
+            <div class="muted" style="margin-top:.7rem;">${l.descricao || 'Sem descrição.'}</div>
+          </div>
+          <div class="actions-under">
+            <button class="btn secondary" id="modalLessonEdit" ${can('lessons','editor') ? '' : 'disabled'}>Editar</button>
+            ${turma ? `<button class="btn secondary" id="modalLessonClass">Abrir turma</button>` : ''}
+          </div>
+        </div>
+      `;
+      $('#entityModal').classList.add('open');
+      $('#btnCloseEntity').onclick = closeEntityModal;
+      $('#modalLessonEdit').onclick = ()=>openLessonModal(l);
+      if (turma && $('#modalLessonClass')) $('#modalLessonClass').onclick = ()=>openClassQuickView(turma.id);
     }
 
     function destroyChart(id) {
