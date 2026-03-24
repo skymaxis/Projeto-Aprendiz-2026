@@ -254,6 +254,56 @@
     .student-meta { display:grid; gap:.28rem; min-width:0; }
     .student-meta .muted { overflow-wrap:anywhere; }
     .student-code { min-width:78px; text-align:right; font-weight:700; color:var(--muted); }
+    .module-shell { display:grid; gap:1rem; }
+    .module-toolbar.card, .module-panel.card, .section-panel.card { border-radius:26px; background:linear-gradient(180deg, var(--card), var(--card-2)); box-shadow:var(--shadow); }
+    .module-toolbar { display:flex; justify-content:space-between; gap:.9rem; align-items:center; flex-wrap:wrap; }
+    .module-toolbar .toolbar { width:100%; margin:0; }
+    .module-header-note { margin:0; color:var(--muted); }
+    .section-title-row { display:flex; justify-content:space-between; align-items:center; gap:.75rem; margin-bottom:.9rem; }
+    .section-title-row h3, .section-title-row h2 { margin:0; }
+    .section-title-row p { margin:.2rem 0 0; color:var(--muted); }
+    .section-icon { width:48px; height:48px; border-radius:16px; display:grid; place-items:center; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; box-shadow:var(--shadow); font-weight:800; }
+    .item { border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); box-shadow:var(--shadow); transition:transform .18s ease, box-shadow .18s ease; }
+    .item:hover, .modal-list-button:hover, .top-church-btn:hover, .kpi-button:hover { transform:translateY(-2px); }
+    .student-card { position:relative; overflow:hidden; border:1px solid var(--line); }
+    .student-card::before { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg, rgba(255,255,255,.14), transparent 36%); }
+    .student-head { position:relative; z-index:1; }
+    .actions-under { position:relative; z-index:1; }
+    .student-meta .item-title { font-size:1.05rem; }
+    .modal-content { padding:0; overflow:hidden; }
+    .modal-scroll { max-height:92vh; overflow:auto; padding:1.1rem; }
+    .institutional-modal { display:grid; gap:1rem; }
+    .institutional-modal-header { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; padding:1.2rem 1.2rem 0; }
+    .institutional-modal-eyebrow { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--muted); }
+    .institutional-modal-title { margin:.18rem 0 0; font-size:1.45rem; line-height:1.15; }
+    .institutional-modal-subtitle { margin:.3rem 0 0; color:var(--muted); }
+    .institutional-modal-body { padding:0 1.2rem 1.2rem; display:grid; gap:1rem; }
+    .institutional-modal-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.7rem; padding:0 1.2rem 1.2rem; }
+    .quick-view-grid { gap:1rem; }
+    .quick-view-hero { border:1px solid var(--line); border-radius:26px; padding:1.15rem; background:linear-gradient(180deg, var(--card), var(--card-2)); box-shadow:var(--shadow); }
+    .quick-view-hero.dark { background:linear-gradient(135deg, rgba(15,23,42,.98), rgba(30,41,59,.92)); color:#fff; border-color:rgba(255,255,255,.08); }
+    .quick-view-hero.dark .muted, .quick-view-hero.dark .desc { color:rgba(255,255,255,.76); }
+    .quick-view-grid-2 { display:grid; gap:1rem; grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .quick-view-stat { border:1px solid var(--line); border-radius:18px; padding:.95rem 1rem; background:rgba(255,255,255,.48); }
+    body.dark .quick-view-stat { background:rgba(255,255,255,.04); }
+    .quick-view-stat strong { display:block; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:.45rem; }
+    .modal-list { display:grid; gap:.75rem; }
+    .modal-list-button, .top-church-btn { border:1px solid var(--line); border-radius:18px; padding:1rem; background:linear-gradient(180deg, var(--card), var(--card-2)); text-align:left; cursor:pointer; color:var(--text); box-shadow:var(--shadow); }
+    .modal-list-button strong, .top-church-btn strong { display:block; font-size:1rem; }
+    .modal-list-button small, .top-church-btn span { display:block; margin-top:.35rem; color:var(--muted); }
+    .calendar, .attendance-shell, .dashboard-main-card, .kpi-card-shell { position:relative; overflow:hidden; }
+    .calendar::before, .attendance-shell::before, .dashboard-main-card::before, .kpi-card-shell::before { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg, rgba(255,255,255,.08), transparent 38%); }
+    .calendar > *, .attendance-shell > *, .dashboard-main-card > *, .kpi-card-shell > * { position:relative; z-index:1; }
+    .attendance-row { border-radius:20px; }
+    .attendance-top .item-title { font-size:1rem; }
+    @media (max-width: 760px) {
+      .quick-view-grid-2 { grid-template-columns:1fr; }
+      .institutional-modal-header { flex-direction:column; }
+      .institutional-modal-actions { justify-content:stretch; }
+      .institutional-modal-actions .btn { width:100%; }
+      .module-toolbar { align-items:stretch; }
+    }
+
     .item-title, .page-head h1, .page-head p, .dashboard-title-wrap p, .muted, .notice, .modal-list-item { overflow-wrap:anywhere; word-break:normal; }
     @media (max-width: 1100px) {
       .kpi { grid-column: span 6; }
@@ -436,7 +486,7 @@
     </div>
   </div>
 
-  <div id="entityModal" class="modal"><div class="modal-content" id="entityModalContent"></div></div>
+  <div id="entityModal" class="modal"><div class="modal-content"><div class="modal-scroll" id="entityModalContent"></div></div></div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -894,13 +944,22 @@
         return openActionListModal(`Aulas cadastradas em ${year}`, 'Programações registradas para o ano corrente. Toque em uma aula para abrir a visualização rápida.', items);
       }
     }
-    function openSimpleInfoModal(title, text) {
+    
+function openSimpleInfoModal(title, text) {
       $('#entityModalContent').innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">Explicação rápida do indicador.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+        <div class="institutional-modal">
+          <div class="institutional-modal-header">
+            <div>
+              <div class="institutional-modal-eyebrow">Gestão de Alunos Projeto Aprendiz 2026</div>
+              <h2 class="institutional-modal-title">${title}</h2>
+              <p class="institutional-modal-subtitle">Explicação rápida do indicador.</p>
+            </div>
+            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          </div>
+          <div class="institutional-modal-body">
+            <div class="notice">${text}</div>
+          </div>
         </div>
-        <div class="notice">${text}</div>
       `;
       $('#entityModal').classList.add('open');
       $('#btnCloseEntity').onclick = closeEntityModal;
@@ -926,14 +985,23 @@
       $('#entityModal').classList.add('open');
       $('#btnCloseEntity').onclick = closeEntityModal;
     }
-    function openActionListModal(title, subtitle, items) {
+    
+function openActionListModal(title, subtitle, items) {
       $('#entityModalContent').innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">${subtitle}</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
-        </div>
-        <div class="modal-list">
-          ${items.length ? items.map(item => `<button class="modal-list-button" data-modal-action="${item.action}"><strong>${item.label}</strong>${item.sublabel ? `<small>${item.sublabel}</small>` : ''}</button>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
+        <div class="institutional-modal">
+          <div class="institutional-modal-header">
+            <div>
+              <div class="institutional-modal-eyebrow">Gestão de Alunos Projeto Aprendiz 2026</div>
+              <h2 class="institutional-modal-title">${title}</h2>
+              <p class="institutional-modal-subtitle">${subtitle}</p>
+            </div>
+            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          </div>
+          <div class="institutional-modal-body">
+            <div class="modal-list">
+              ${items.length ? items.map(item => `<button class="modal-list-button" data-modal-action="${item.action}"><strong>${item.label}</strong>${item.sublabel ? `<small>${item.sublabel}</small>` : ''}</button>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
+            </div>
+          </div>
         </div>
       `;
       $('#entityModal').classList.add('open');
@@ -948,78 +1016,93 @@
       if (kind === 'class') return openClassQuickView(id);
       if (kind === 'lesson') return openLessonQuickView(id);
     }
-    function openStudentQuickView(studentId) {
+    
+function openStudentQuickView(studentId) {
       const s = normalizeStudent(state.students.find(x => x.id === studentId) || {});
       if (!s.id) return;
       const initials = (s.nome || 'A').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
       $('#entityModalContent').innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <div><h2 style="margin:0;">${s.nome}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida do cadastro do aluno.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
-        </div>
-        <div class="quick-view-grid">
-          <div class="item student-card">
-            <div class="student-head">
-              <div class="student-avatar">${s.foto_url ? `<img src="${s.foto_url}" alt="Foto de ${s.nome}">` : initials}</div>
-              <div class="student-meta">
-                <div class="item-title">${s.nome}</div>
-                <div class="muted">${s.igreja || 'Sem igreja'} • ${s.email || 'Sem e-mail'}</div>
-                <div class="muted">Telefone: ${formatPhoneDisplay(s)} • Pastor: ${s.pastor_nome || 'Não informado'}</div>
-                <div class="badges">
-                  <span class="badge">${s.status || 'Ativo'}</span>
-                  <span class="badge">${s.faixa_etaria || 'Faixa etária pendente'}</span>
-                  <span class="badge">${s.instrumento || 'Bateria'}</span>
+        <div class="institutional-modal">
+          <div class="institutional-modal-header">
+            <div>
+              <div class="institutional-modal-eyebrow">Gestão de Alunos Projeto Aprendiz 2026</div>
+              <h2 class="institutional-modal-title">${s.nome}</h2>
+              <p class="institutional-modal-subtitle">Visualização rápida do cadastro do aluno.</p>
+            </div>
+            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          </div>
+          <div class="institutional-modal-body">
+            <div class="quick-view-hero">
+              <div class="student-head">
+                <div class="student-avatar">${s.foto_url ? `<img src="${s.foto_url}" alt="Foto de ${s.nome}">` : initials}</div>
+                <div class="student-meta">
+                  <div class="item-title">${s.nome}</div>
+                  <div class="muted">${s.igreja || 'Sem igreja'} • ${s.email || 'Sem e-mail'}</div>
+                  <div class="muted">Telefone: ${formatPhoneDisplay(s)} • Pastor: ${s.pastor_nome || 'Não informado'}</div>
+                  <div class="badges">
+                    <span class="badge">${s.status || 'Ativo'}</span>
+                    <span class="badge">${s.faixa_etaria || 'Faixa etária pendente'}</span>
+                    <span class="badge">${s.instrumento || 'Bateria'}</span>
+                  </div>
                 </div>
+                <div class="student-code">#${s.codigo}</div>
               </div>
-              <div class="student-code">#${s.codigo}</div>
+            </div>
+            <div class="quick-view-grid-2">
+              <div class="quick-view-stat"><strong>Região</strong>${s.regiao || 'Não informada'}</div>
+              <div class="quick-view-stat"><strong>WhatsApp</strong>${s.whatsapp_url ? `<a href="${s.whatsapp_url}" target="_blank" rel="noopener">Abrir contato</a>` : 'Não disponível'}</div>
+              <div class="quick-view-stat"><strong>Pastor e contato</strong>${s.pastor_nome || 'Não informado'}${s.pastor_telefone ? ` • ${s.pastor_telefone}` : ''}</div>
+              <div class="quick-view-stat"><strong>Idade</strong>${s.idade ?? 'Não informada'}</div>
             </div>
             <div class="quick-view-card">
-              <div class="muted"><strong>Região:</strong> ${s.regiao || 'Não informada'}</div>
-              <div class="muted"><strong>Pastor:</strong> ${s.pastor_nome || 'Não informado'} ${s.pastor_telefone ? `• ${s.pastor_telefone}` : ''}</div>
-              <div class="muted"><strong>Nascimento:</strong> ${s.data_nascimento ? new Date(s.data_nascimento+'T00:00:00').toLocaleDateString('pt-BR') : 'Não informado'} ${s.idade ? `• ${s.idade} ano(s)` : ''}</div>
-              <div class="muted"><strong>Observações:</strong> ${s.observacoes || 'Sem observações.'}</div>
+              <div class="item-title">Resumo institucional</div>
+              <div class="muted" style="margin-top:.5rem;">${s.observacoes || 'Aluno com cadastro pronto para acompanhamento, emissão de ficha PDF e comunicação institucional.'}</div>
             </div>
-            <div class="actions-under">
-              <button class="btn secondary" id="modalStudentEdit" ${can('students','editor') ? '' : 'disabled'}>Editar</button>
-              <button class="btn secondary" id="modalStudentDocs">Documentos</button>
-              <a class="btn secondary" href="${s.whatsapp_url || '#'}" target="_blank" rel="noopener">WhatsApp</a>
-              <button class="btn secondary" id="modalStudentPdf">Ficha PDF</button>
-            </div>
+          </div>
+          <div class="institutional-modal-actions">
+            <button class="btn secondary" id="btnStudentPdfQuick">Ficha PDF</button>
+            <button class="btn" id="btnStudentEditQuick" ${can('students','editor') ? '' : 'disabled'}>Editar cadastro</button>
           </div>
         </div>
       `;
       $('#entityModal').classList.add('open');
       $('#btnCloseEntity').onclick = closeEntityModal;
-      $('#modalStudentEdit').onclick = ()=>openStudentModal(s);
-      $('#modalStudentDocs').onclick = ()=>openDocsModal(s);
-      $('#modalStudentPdf').onclick = ()=>printStudentPdf(s);
+      $('#btnStudentPdfQuick').onclick = ()=>printStudentPdf(s);
+      $('#btnStudentEditQuick').onclick = ()=>openStudentModal(s);
     }
-    function openClassQuickView(classId) {
+    
+function openClassQuickView(classId) {
       const c = state.classes.find(x => x.id === classId);
       if (!c) return;
       const inscritos = sortBy((c.inscritos || []).map(id => normalizeStudent(state.students.find(s => s.id === id) || {})).filter(s => s.id), 'nome');
       $('#entityModalContent').innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <div><h2 style="margin:0;">${c.nome}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida da turma cadastrada.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
-        </div>
-        <div class="quick-view-grid">
-          <div class="quick-view-card">
-            <div class="item-title">${c.nome}</div>
-            <div class="muted">${c.igreja || 'Sem igreja'} • Capacidade: ${c.capacidade || 0} • Inscritos: ${(c.inscritos || []).length}</div>
-            <div class="badges"><span class="badge">${c.status || 'Ativa'}</span><span class="badge">Vagas: ${Math.max((c.capacidade||0)-(c.inscritos||[]).length,0)}</span></div>
-            <div class="muted" style="margin-top:.7rem;">${c.descricao || 'Sem descrição.'}</div>
+        <div class="institutional-modal">
+          <div class="institutional-modal-header">
+            <div>
+              <div class="institutional-modal-eyebrow">Gestão de Alunos Projeto Aprendiz 2026</div>
+              <h2 class="institutional-modal-title">${c.nome}</h2>
+              <p class="institutional-modal-subtitle">Visualização rápida da turma cadastrada.</p>
+            </div>
+            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
           </div>
-          <div class="quick-view-card">
-            <div class="item-title" style="margin-bottom:.65rem;">Alunos da turma</div>
-            <div class="modal-list">
-              ${inscritos.length ? inscritos.map(s => `<button class="modal-list-button" data-modal-action="student:${s.id}"><strong>${s.nome}</strong><small>${s.igreja || 'Sem igreja'} • ${formatPhoneDisplay(s)}</small></button>`).join('') : '<div class="notice">Nenhum aluno vinculado.</div>'}
+          <div class="institutional-modal-body">
+            <div class="quick-view-hero dark">
+              <div class="item-title">${c.nome}</div>
+              <div class="muted">${c.igreja || 'Sem igreja'} • Capacidade: ${c.capacidade || 0} • Inscritos: ${(c.inscritos || []).length}</div>
+              <div class="badges"><span class="badge">${c.status || 'Ativa'}</span><span class="badge">Vagas: ${Math.max((c.capacidade||0)-(c.inscritos||[]).length,0)}</span></div>
+              <div class="muted" style="margin-top:.75rem;">${c.descricao || 'Sem descrição.'}</div>
+            </div>
+            <div class="quick-view-card">
+              <div class="item-title" style="margin-bottom:.65rem;">Alunos da turma</div>
+              <div class="modal-list">
+                ${inscritos.length ? inscritos.map(s => `<button class="modal-list-button" data-modal-action="student:${s.id}"><strong>${s.nome}</strong><small>${s.igreja || 'Sem igreja'} • ${formatPhoneDisplay(s)}</small></button>`).join('') : '<div class="notice">Nenhum aluno vinculado.</div>'}
+              </div>
             </div>
           </div>
-          <div class="actions-under">
-            <button class="btn secondary" id="modalClassEdit" ${can('classes','editor') ? '' : 'disabled'}>Editar</button>
+          <div class="institutional-modal-actions">
             <button class="btn secondary" id="modalClassCall">Lista de chamada</button>
             <button class="btn secondary" id="modalClassPdf">PDF da turma</button>
+            <button class="btn" id="modalClassEdit" ${can('classes','editor') ? '' : 'disabled'}>Editar</button>
           </div>
         </div>
       `;
@@ -1030,26 +1113,33 @@
       $('#modalClassPdf').onclick = ()=>printClassPdf(c);
       $$('#entityModalContent [data-modal-action]').forEach(btn => btn.onclick = () => handleModalAction(btn.dataset.modalAction));
     }
-    function openLessonQuickView(lessonId) {
+    
+function openLessonQuickView(lessonId) {
       const l = state.lessons.find(x => x.id === lessonId);
       if (!l) return;
       const turma = state.classes.find(c => c.id === l.turma_id);
       $('#entityModalContent').innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <div><h2 style="margin:0;">${l.titulo}</h2><p class="desc" style="margin:.2rem 0 0;">Visualização rápida da aula planejada.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
-        </div>
-        <div class="quick-view-grid">
-          <div class="quick-view-card">
-            <div class="item-title">${l.titulo}</div>
-            <div class="muted">${l.data ? new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data'} • ${l.hora_inicio || '--:--'} às ${l.hora_fim || '--:--'}</div>
-            <div class="muted">Turma: ${turma?.nome || 'Sem turma'} • Local: ${l.local || 'Sem local'}</div>
-            <div class="badges"><span class="badge">${l.status || 'Planejada'}</span>${turma ? `<span class="badge">${turma.igreja || 'Sem igreja'}</span>` : ''}</div>
-            <div class="muted" style="margin-top:.7rem;">${l.descricao || 'Sem descrição.'}</div>
+        <div class="institutional-modal">
+          <div class="institutional-modal-header">
+            <div>
+              <div class="institutional-modal-eyebrow">Gestão de Alunos Projeto Aprendiz 2026</div>
+              <h2 class="institutional-modal-title">${l.titulo}</h2>
+              <p class="institutional-modal-subtitle">Visualização rápida da aula planejada.</p>
+            </div>
+            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
           </div>
-          <div class="actions-under">
-            <button class="btn secondary" id="modalLessonEdit" ${can('lessons','editor') ? '' : 'disabled'}>Editar</button>
+          <div class="institutional-modal-body">
+            <div class="quick-view-hero">
+              <div class="item-title">${l.titulo}</div>
+              <div class="muted">${l.data ? new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data'} • ${l.hora_inicio || '--:--'} às ${l.hora_fim || '--:--'}</div>
+              <div class="muted">Turma: ${turma?.nome || 'Sem turma'} • Local: ${l.local || 'Sem local'}</div>
+              <div class="badges"><span class="badge">${l.status || 'Planejada'}</span>${turma ? `<span class="badge">${turma.igreja || 'Sem igreja'}</span>` : ''}</div>
+              <div class="muted" style="margin-top:.75rem;">${l.descricao || 'Sem descrição.'}</div>
+            </div>
+          </div>
+          <div class="institutional-modal-actions">
             ${turma ? `<button class="btn secondary" id="modalLessonClass">Abrir turma</button>` : ''}
+            <button class="btn" id="modalLessonEdit" ${can('lessons','editor') ? '' : 'disabled'}>Editar</button>
           </div>
         </div>
       `;
@@ -1149,15 +1239,24 @@
       chartRegistry.set(id, chart);
       canvas._chart = chart;
     }
-    function renderStudents() {
+    
+function renderStudents() {
       const content = $('#pageContent');
       const ordered = sortBy(state.students.map(normalizeStudent), 'nome');
       content.innerHTML = `
-        <div class="toolbar">
-          <input id="studentSearch" placeholder="Pesquisar por nome, igreja ou e-mail" />
-          <button class="btn" id="btnAddStudent" ${can('students','editor') ? '' : 'disabled'}>Novo aluno</button>
+        <div class="module-shell">
+          <div class="card premium-card module-toolbar">
+            <div>
+              <h2 class="module-title">Alunos</h2>
+              <p class="module-header-note">Cadastros completos com visual institucional, documentos e ações rápidas.</p>
+            </div>
+            <div class="toolbar">
+              <input id="studentSearch" placeholder="Pesquisar por nome, igreja ou e-mail" />
+              <button class="btn" id="btnAddStudent" ${can('students','editor') ? '' : 'disabled'}>Novo aluno</button>
+            </div>
+          </div>
+          <div class="item-list" id="studentList"></div>
         </div>
-        <div class="item-list" id="studentList"></div>
       `;
       const listEl = $('#studentList');
       function paint(filter='') {
@@ -1166,7 +1265,7 @@
         listEl.innerHTML = filtered.map(s => {
           const initials = (s.nome || 'A').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
           return `
-          <div class="item student-card">
+          <div class="item student-card premium-card">
             <div class="student-head">
               <div class="student-avatar">${s.foto_url ? `<img src="${s.foto_url}" alt="Foto de ${s.nome}">` : initials}</div>
               <div class="student-meta">
