@@ -211,8 +211,13 @@
     }
     .kpi-info-btn:hover { transform:translateY(-1px); }
 
-    .modal-back-btn { margin-right:.55rem; }
-    .modal-back-btn .arrow-only { font-size:1.02rem; line-height:1; }
+    .modal-back-btn {
+      position:absolute; left:1rem; top:1rem; width:2.5rem; height:2.5rem; min-width:2.5rem; padding:0;
+      border-radius:999px; display:grid; place-items:center; z-index:3;
+      box-shadow:0 8px 20px rgba(15,23,42,.08);
+    }
+    .modal-back-btn .arrow-only { font-size:1.08rem; line-height:1; }
+    .modal-back-btn .back-label { display:none; }
     .institutional-modal-header-actions, .modal-inline-actions { display:flex; gap:.55rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
     .kpi.premium-card .value { font-size:2rem; line-height:1.05; padding-right:2.2rem; }
@@ -221,8 +226,8 @@
     .dashboard-header-row { display:flex; gap:1rem; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:1rem; padding-right:3.65rem; }
     .dashboard-title-wrap h3 { margin:0; }
     .dashboard-title-wrap p { margin:.3rem 0 0; color:var(--muted); max-width:62ch; }
-    .dashboard-controls { display:flex; gap:.65rem; align-items:flex-end; flex-wrap:wrap; margin-left:auto; }
-    .chart-select-wrap { min-width:240px; }
+    .dashboard-controls { display:flex; gap:.65rem; align-items:flex-end; flex-wrap:wrap; margin-left:auto; justify-content:flex-start; }
+    .chart-select-wrap { min-width:240px; margin-right:auto; text-align:left; }
     .icon-refresh { width:44px; height:44px; border-radius:999px; padding:0; display:grid; place-items:center; align-self:flex-start; }
     .dashboard-main-refresh { position:absolute; top:1rem; right:1rem; z-index:2; }
     .icon-refresh svg { width:18px; height:18px; }
@@ -279,7 +284,7 @@
     .modal-content { padding:0; overflow:hidden; }
     .modal-scroll { max-height:92vh; overflow:auto; padding:1.1rem; }
     .institutional-modal { display:grid; gap:1rem; }
-    .institutional-modal-header { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; padding:1.2rem 1.2rem 0; }
+    .institutional-modal-header { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; padding:1.2rem 1.2rem 0 4.3rem; position:relative; }
     .institutional-modal-eyebrow { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--muted); }
     .institutional-modal-title { margin:.18rem 0 0; font-size:1.45rem; line-height:1.15; }
     .institutional-modal-subtitle { margin:.3rem 0 0; color:var(--muted); }
@@ -304,7 +309,8 @@
     .attendance-top .item-title { font-size:1rem; }
     @media (max-width: 760px) {
       .quick-view-grid-2 { grid-template-columns:1fr; }
-      .institutional-modal-header { flex-direction:column; }
+      .institutional-modal-header { flex-direction:column; padding-left:1.2rem; padding-top:4.2rem; }
+      .modal-back-btn { left:1rem; top:1rem; }
       .institutional-modal-actions { justify-content:stretch; }
       .institutional-modal-actions .btn { width:100%; }
       .module-toolbar { align-items:stretch; }
@@ -331,7 +337,7 @@
       .kpi { grid-column: span 12; }
       .kpi-grid { grid-template-columns:1fr; }
       .dashboard-header-row { align-items:stretch; }
-      .dashboard-controls { width:100%; justify-content:space-between; }
+      .dashboard-controls { width:100%; justify-content:flex-start; align-items:stretch; }
       .chart-select-wrap { min-width:100%; }
       .kpi-hint, .dashboard-title-wrap p { max-width:100%; }
       .student-head { grid-template-columns:auto 1fr; }
@@ -1831,23 +1837,28 @@ function renderStudents() {
       wireEntityModalNav();
     }
     function wireEntityModalNav() {
+      const modalContent = $('#entityModalContent');
+      $$('#entityModalContent .modal-back-btn').forEach(btn => btn.remove());
       const closeButtons = $$('#entityModalContent #btnCloseEntity');
       closeButtons.forEach((btn) => {
         btn.dataset.role = 'close-entity';
         btn.onclick = closeEntityModal;
-        const parent = btn.parentElement;
-        if (!parent) return;
-        const oldBack = parent.querySelector('.modal-back-btn');
-        if (oldBack) oldBack.remove();
-        if (entityModalStack.length) {
-          const back = document.createElement('button');
-          back.className = 'btn secondary modal-back-btn';
-          back.type = 'button';
-          back.innerHTML = '<span class="arrow-only">←</span> Voltar';
-          back.onclick = goBackEntityModal;
-          parent.insertBefore(back, btn);
-        }
       });
+      if (!entityModalStack.length || !closeButtons.length) return;
+      const targetHeader = closeButtons[0].closest('.institutional-modal-header') || closeButtons[0].parentElement || modalContent;
+      if (!targetHeader) return;
+      targetHeader.style.position = 'relative';
+      if (!window.matchMedia('(max-width: 760px)').matches) {
+        targetHeader.style.paddingLeft = '4.3rem';
+      }
+      const back = document.createElement('button');
+      back.className = 'btn secondary modal-back-btn';
+      back.type = 'button';
+      back.title = 'Voltar';
+      back.setAttribute('aria-label', 'Voltar');
+      back.innerHTML = '<span class="arrow-only">←</span><span class="back-label">Voltar</span>';
+      back.onclick = goBackEntityModal;
+      targetHeader.insertBefore(back, targetHeader.firstChild);
     }
     function goBackEntityModal() {
       const previous = entityModalStack.pop();
