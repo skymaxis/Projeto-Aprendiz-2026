@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Alunos Projeto Aprendiz 2026 - V8.5.4</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --panel-2:#eef3fb;
+      --text:#152033;
+      --muted:#61708a;
+      --line:#d8e0ee;
+      --accent:#275efe;
+      --accent-2:#17a34a;
+      --danger:#cf3341;
+      --warn:#d68609;
+      --shadow:0 12px 30px rgba(31,54,88,.10);
+      --radius:18px;
+    }
+    [data-theme="dark"]{
+      --bg:#0f1727;
+      --panel:#172132;
+      --panel-2:#1d293d;
+      --text:#ecf2ff;
+      --muted:#99a8c2;
+      --line:#2b3850;
+      --accent:#6ea8ff;
+      --accent-2:#4fd58f;
+      --danger:#ff6b7d;
+      --warn:#ffb84d;
+      --shadow:0 18px 40px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Inter,Arial,sans-serif}
+    body{min-height:100vh}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .sidebar{
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border-right:1px solid var(--line);
+      padding:18px 16px;
+      display:flex;flex-direction:column;gap:14px;
+      position:sticky;top:0;height:100vh;
+    }
+    .brand{
+      display:grid;grid-template-columns:64px 1fr 52px;gap:12px;align-items:center;
+      background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--shadow);
+    }
+    .logo-box{
+      width:64px;height:64px;border-radius:18px;background:var(--panel-2);
+      border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .logo-box img{width:100%;height:100%;object-fit:cover}
+    .title-wrap h1{font-size:1rem;line-height:1.2;margin:0}
+    .title-wrap p{margin:5px 0 0;color:var(--muted);font-size:.8rem}
+    .gear-btn{
+      width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+      transition:.2s transform,.2s background;
+    }
+    .gear-btn:hover{transform:rotate(12deg);background:var(--panel)}
+    .nav{display:flex;flex-direction:column;gap:8px}
+    .nav button{
+      text-align:left;padding:13px 14px;border-radius:16px;border:1px solid var(--line);
+      background:var(--panel);color:var(--text);cursor:pointer;font-weight:600;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+    }
+    .nav button.active{background:var(--accent);color:#fff;border-color:transparent}
+    .nav button .small{font-size:.77rem;color:inherit;opacity:.78;font-weight:500}
+    .side-footer{
+      margin-top:auto;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--panel)
+    }
+    .side-footer strong{display:block;margin-bottom:6px}
+    .main{
+      padding:20px;
+      display:flex;flex-direction:column;gap:18px;
+      min-width:0;
+    }
+    .page-header{
+      background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)
+    }
+    .page-header h2{margin:0 0 6px;font-size:1.45rem}
+    .page-header p{margin:0;color:var(--muted)}
+    .section{display:none;gap:18px}
+    .section.active{display:grid}
+    .grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .panel{
+      background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);min-width:0
+    }
+    .panel h3{margin:0 0 12px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    input,select,textarea,button{
+      font:inherit
+    }
+    .field,.toolbar input,.toolbar select,.toolbar textarea,.editor input,.editor select,.editor textarea{
+      width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--text)
+    }
+    textarea{min-height:110px;resize:vertical}
+    .btn{
+      border:none;background:var(--accent);color:white;padding:11px 14px;border-radius:14px;cursor:pointer;font-weight:700
+    }
+    .btn.secondary{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}
+    .btn.success{background:var(--accent-2)}
+    .btn.warn{background:var(--warn)}
+    .btn.danger{background:var(--danger)}
+    .btn.icon{
+      width:42px;height:42px;padding:0;border-radius:999px;display:inline-flex;align-items:center;justify-content:center
+    }
+    .muted{color:var(--muted)}
+    .cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{
+      position:relative;padding:15px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      min-height:116px;display:flex;flex-direction:column;justify-content:space-between
+    }
+    .metric button.card-link{
+      background:none;border:none;padding:0;text-align:left;color:inherit;cursor:pointer
+    }
+    .metric .value{font-size:1.9rem;font-weight:800}
+    .metric .help{
+      position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:999px;border:none;cursor:pointer;
+      background:var(--panel);color:var(--accent);font-weight:800;box-shadow:var(--shadow)
+    }
+    .chart-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+    .chart-wrap{height:340px;position:relative;border:1px solid var(--line);border-radius:18px;padding:10px;background:var(--panel-2)}
+    canvas{width:100%;height:100%}
+    .top5-list{display:flex;flex-direction:column;gap:10px}
+    .pill-btn{
+      width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2);
+      display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--text);font-weight:700
+    }
+    .records{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .student-card,.turma-card,.aula-card{
+      border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      padding:16px;display:grid;gap:12px
+    }
+    .student-top{
+      display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:start
+    }
+    .avatar{
+      width:62px;height:62px;border-radius:18px;border:1px solid var(--line);background:var(--panel);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:800
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .name-line{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .name-line h4{margin:0;font-size:1.02rem}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:.78rem
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+    .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;color:var(--muted);font-size:.92rem}
+    .editor{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .editor .full{grid-column:1/-1}
+    .list-table{width:100%;border-collapse:collapse}
+    .list-table th,.list-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
+    .calendar{display:grid;gap:12px}
+    .calendar-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+    .weekday,.day-cell{
+      border:1px solid var(--line);border-radius:14px;padding:10px;min-height:84px;background:var(--panel-2)
+    }
+    .weekday{font-weight:800;min-height:auto;text-align:center;background:var(--panel)}
+    .day-cell{cursor:pointer;position:relative}
+    .day-cell.other{opacity:.45}
+    .day-cell.has-event::after{
+      content:"";position:absolute;right:10px;top:10px;width:10px;height:10px;border-radius:999px;background:var(--accent)
+    }
+    .presence-list{display:grid;gap:12px}
+    .presence-item{border:1px solid var(--line);border-radius:16px;padding:12px;background:var(--panel-2)}
+    .presence-row{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;align-items:center}
+    .just-box{margin-top:10px;display:none}
+    .presence-item.show-just .just-box{display:block}
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(6,12,24,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(920px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:18px
+    }
+    .modal.sm{width:min(640px,100%)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tabs button{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer}
+    .tabs button.active{background:var(--accent);color:white;border-color:transparent}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+    .note{padding:12px;border:1px dashed var(--line);background:var(--panel-2);border-radius:16px;color:var(--muted)}
+    .inline-group{display:flex;gap:10px;flex-wrap:wrap}
+    .inline-group > *{flex:1}
+    .footer-bar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .hidden{display:none!important}
+    @media (max-width:1100px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .grid-2,.grid-3,.cards-row,.records{grid-template-columns:1fr}
+    }
+    @media (max-width:720px){
+      .main{padding:12px}
+      .brand{grid-template-columns:56px 1fr 48px}
+      .editor,.presence-row,.kv{grid-template-columns:1fr}
+      .student-top{grid-template-columns:1fr}
+      .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+      .day-cell{padding:8px;min-height:76px}
+      .page-header,.panel{padding:14px}
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="appRoot">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo-box" id="logoBox"><span>🎵</span></div>
+      <div class="title-wrap">
+        <h1>Gestão de Alunos Projeto Aprendiz 2026</h1>
+        <p>V8.5.4 estável • local-first • responsivo</p>
+      </div>
+      <button class="gear-btn" id="openSettingsBtn" title="Configurações" aria-label="Configurações">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5A3.5 3.5 0 1 0 12 8.5Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 0 1 0 2.8l-.6.6a2 2 0 0 1-2.8 0l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V21a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-.2a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 0 1-2.8 0l-.6-.6a2 2 0 0 1 0-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H3a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h.2a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 0 1 0-2.8l.6-.6a2 2 0 0 1 2.8 0l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V3a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v.2a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H21a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-.2a1 1 0 0 0-.9.6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="nav" id="navMenu">
+      <button data-section="dashboard" class="active"><span>Dashboard</span><span class="small">Visão geral</span></button>
+      <button data-section="alunos"><span>Alunos</span><span class="small">Cadastro</span></button>
+      <button data-section="turmas"><span>Turmas</span><span class="small">Capacidade</span></button>
+      <button data-section="aulas"><span>Aulas</span><span class="small">Calendário</span></button>
+      <button data-section="presencas"><span>Presenças</span><span class="small">Lista e histórico</span></button>
+      <button data-section="dados"><span>Dados</span><span class="small">Backup e importação</span></button>
+    </nav>
+
+    <div class="side-footer">
+      <strong>Status do app</strong>
+      <div class="muted" id="statusBox">Inicialização estável carregada.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <h2 id="pageTitle">Dashboard</h2>
+      <p id="pageDesc">Resumo executivo, gráficos estáveis, atalhos rápidos e visão comparativa principal.</p>
+    </header>
+
+    <section id="dashboard" class="section active">
+      <div class="cards-row" id="metricCards"></div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="chart-head">
+            <div>
+              <h3>Quadro comparativo principal</h3>
+              <div class="muted">Escolha um tipo de gráfico em Português Brasil e atualize quando desejar.</div>
+            </div>
+            <div class="inline-group" style="flex:0 0 auto;align-items:center">
+              <select id="chartTypeSelect" class="field" style="min-width:210px">
+                <option value="bar">Barras</option>
+                <option value="line">Linha</option>
+                <option value="pie">Pizza</option>
+                <option value="donut">Rosca</option>
+                <option value="radar">Radar</option>
+                <option value="area">Área</option>
+              </select>
+              <button class="btn icon" id="refreshChartBtn" title="Atualizar gráfico">↻</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="mainChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Top 5 igrejas</h3>
+          <div class="muted" style="margin-bottom:10px">Toque em uma igreja para visualizar rapidamente os alunos vinculados.</div>
+          <div class="top5-list" id="topChurches"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Resumo operacional</h3>
+          <table class="list-table">
+            <thead>
+              <tr><th>Indicador</th><th>Valor</th><th>Observação</th></tr>
+            </thead>
+            <tbody id="summaryTable"></tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h3>Prioridades técnicas incorporadas</h3>
+          <div class="note">
+            Esta versão foi criada a partir da consolidação das sugestões, implementações descritas, auditoria comparativa e roadmap técnico priorizado. Recursos que exigem backend real continuam separados na aba <strong>Dados</strong>, para evitar falhas de abertura.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="alunos" class="section">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="toolbar">
+            <input id="studentSearch" placeholder="Buscar aluno, igreja, região ou telefone" />
+            <select id="studentSort">
+              <option value="name">Ordenar por nome</option>
+              <option value="church">Ordenar por igreja</option>
+              <option value="region">Ordenar por região</option>
+            </select>
+            <button class="btn" id="newStudentBtn">Novo aluno</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="note">O telefone é exibido automaticamente no padrão visual <strong>(27) 99999-9999</strong>. A idade e a faixa etária são calculadas quando a data de nascimento é preenchida.</div>
+        </div>
+      </div>
+      <div class="records" id="studentsList"></div>
+    </section>
+
+    <section id="turmas" class="section">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="toolbar">
+            <input id="classSearch" placeholder="Buscar turma" />
+            <button class="btn" id="newClassBtn">Nova turma</button>
+          </div>
+        </div>
+        <div class="panel"><div class="note">Gerencie capacidade, inscritos e vínculo dos alunos. As ações ficam abaixo de cada item, alinhadas à esquerda.</div></div>
+      </div>
+      <div class="records" id="classesList"></div>
+    </section>
+
+    <section id="aulas" class="section">
+      <div class="grid-2">
+        <div class="panel calendar">
+          <div class="calendar-head">
+            <button class="btn secondary" id="prevMonthBtn">◀ Mês anterior</button>
+            <h3 id="calendarTitle" style="margin:0"></h3>
+            <button class="btn secondary" id="nextMonthBtn">Próximo mês ▶</button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+        <div class="panel">
+          <div class="toolbar" style="margin-bottom:12px">
+            <button class="btn" id="newLessonBtn">Nova aula</button>
+            <select id="lessonFilterTurma"><option value="">Todas as turmas</option></select>
+          </div>
+          <h3>Programação da data</h3>
+          <div id="dayProgram" class="note">Selecione um dia no calendário para visualizar as aulas marcadas.</div>
+          <div style="margin-top:14px">
+            <h3 style="font-size:1rem">Próximas aulas</h3>
+            <div id="lessonsList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="presencas" class="section">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="toolbar">
+            <select id="presenceClassSelect"><option value="">Selecione a turma</option></select>
+            <input id="presenceDate" type="date" />
+            <button class="btn success" id="savePresenceBtn">Salvar presença</button>
+          </div>
+          <div class="presence-list" id="presenceList" style="margin-top:12px"></div>
+        </div>
+        <div class="panel">
+          <h3>Histórico e frequência</h3>
+          <div id="presenceHistory" class="note">Selecione uma turma para carregar histórico e frequência.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dados" class="section">
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Backup local</h3>
+          <div class="toolbar">
+            <button class="btn secondary" id="exportJsonBtn">Exportar JSON</button>
+            <button class="btn secondary" id="exportCsvBtn">Exportar CSV (alunos)</button>
+            <button class="btn secondary" id="exportLogsBtn">Exportar logs</button>
+            <input type="file" id="importJsonInput" accept=".json" />
+          </div>
+          <div class="note" style="margin-top:12px">Importe um JSON exportado por este app para restaurar o estado local sem depender de conexão externa.</div>
+        </div>
+        <div class="panel">
+          <h3>Nuvem / publicação real</h3>
+          <div class="editor">
+            <input id="cloudTenant" placeholder="Tenant ID / identificação do provedor" />
+            <input id="cloudClient" placeholder="Client ID / aplicação" />
+            <input id="cloudRedirect" placeholder="Redirect URI" class="full" />
+            <input id="cloudFolder" placeholder="Pasta / bucket" />
+            <input id="cloudMode" placeholder="Modo de sincronização (manual/automático)" />
+            <textarea id="cloudNote" class="full" placeholder="Observações técnicas sobre sua publicação"></textarea>
+          </div>
+          <div class="footer-bar" style="margin-top:12px">
+            <button class="btn secondary" id="saveCloudBtn">Salvar configuração</button>
+            <span class="muted">Mantido separado para não quebrar a abertura do app.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="modal-backdrop" id="settingsBackdrop">
+  <div class="modal sm">
+    <div class="modal-header">
+      <h3 style="margin:0">Configurações</h3>
+      <button class="btn secondary" id="closeSettingsBtn">Fechar</button>
+    </div>
+    <div class="tabs" id="settingsTabs">
+      <button class="active" data-tab="appearanceTab">Aparência</button>
+      <button data-tab="storageTab">Armazenamento</button>
+      <button data-tab="systemTab">Sistema</button>
+    </div>
+
+    <div class="tab-pane active" id="appearanceTab">
+      <div class="editor">
+        <select id="themeSelect">
+          <option value="light">Modo claro</option>
+          <option value="dark">Modo escuro</option>
+          <option value="auto">Automático</option>
+        </select>
+        <input id="accentInput" type="color" value="#275efe" />
+        <input id="logoInput" type="file" accept="image/*" class="full" />
+      </div>
+      <div class="note" style="margin-top:12px">Nesta versão, o modo e a cor principal são aplicados automaticamente ao mudar a opção. O controle de tamanho de fonte foi removido, mantendo indentação dinâmica e responsiva.</div>
+    </div>
+
+    <div class="tab-pane" id="storageTab">
+      <div class="editor">
+        <input id="setCloudMode" placeholder="Modo da nuvem (manual/automático)" />
+        <input id="setCloudFolder" placeholder="Pasta da nuvem" />
+        <textarea id="setCloudExtra" class="full" placeholder="Observações sobre autenticação, provedor e permissões"></textarea>
+      </div>
+      <div class="note" style="margin-top:12px">Os campos de nuvem ficam separados aqui e na aba Dados. Isso evita que a página falhe na inicialização quando não houver backend configurado.</div>
+    </div>
+
+    <div class="tab-pane" id="systemTab">
+      <div class="note">
+        <strong>Versão:</strong> V8.5.4 consolidada<br/>
+        <strong>Inclui:</strong> estabilidade de abertura, Dashboard com gráfico estável, Radar corrigido sem crescimento infinito, cards clicáveis, Top 5 igrejas em botões, calendário navegável, presença com justificativa, CRUD completo, logo, tema automático, importação/exportação local e estrutura pronta para nuvem sem quebrar o app.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const STORAGE_KEY = "projeto_aprendiz_2026_v854";
+  const el = (sel, root=document) => root.querySelector(sel);
+  const els = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const fmtDateBR = (iso) => {
+    if(!iso) return "—";
+    const d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? "—" : d.toLocaleDateString("pt-BR");
+  };
+  const uid = () => Math.random().toString(36).slice(2,10);
+  const onlyDigits = (v) => (v || "").replace(/\D/g,"");
+  const clampText = (v, max=2000) => (v || "").slice(0,max);
+
+  const defaultState = {
+    settings: {
+      theme: "auto",
+      accent: "#275efe",
+      logoData: ""
+    },
+    cloud: {
+      tenant: "", client: "", redirect: "", folder: "", mode: "manual", note: "", extra: ""
+    },
+    students: [
+      {id:uid(), name:"Calebe Rodrigues de Siqueira Oliveira", phone:"27997889524", email:"siqscalebe@gmail.com", church:"Pontal das Garças", region:"Vila Velha", pastorName:"James Braga Lopes", pastorPhone:"27998672609", birthDate:"1999-06-12", status:"Ativo", notes:"Aluno inscrito para bateria.", photo:"", docs:[]},
+      {id:uid(), name:"Miguel Pereira Andrade", phone:"27999394851", email:"pandrademiguel4@gmail.com", church:"Brisamar", region:"Vila Velha", pastorName:"Maycon Gonçalves Andrade", pastorPhone:"27999223609", birthDate:"2008-03-21", status:"Ativo", notes:"Interesse principal em bateria.", photo:"", docs:[]},
+      {id:uid(), name:"Lorenzo Rocha Larcher", phone:"27995219494", email:"marcoslarchert@gmail.com", church:"Praia da Costa 1", region:"Praia da Costa", pastorName:"Rogério Alencar", pastorPhone:"27981131001", birthDate:"2010-09-05", status:"Ativo", notes:"Cadastro ajustado e padronizado.", photo:"", docs:[]}
+    ],
+    classes: [
+      {id:uid(), name:"Turma Bateria A", year:2026, capacity:15, church:"Praia da Costa 1", studentIds:[], notes:"Turma base do projeto."},
+      {id:uid(), name:"Turma Bateria B", year:2026, capacity:20, church:"Brisamar", studentIds:[], notes:"Turma regional."}
+    ],
+    lessons: [
+      {id:uid(), classId:"", title:"Aula inaugural", date:new Date().toISOString().slice(0,10), time:"19:00", location:"Sala principal", description:"Apresentação inicial e planejamento do ano."}
+    ],
+    presences: [],
+    logs: []
+  };
+
+  let state = loadState();
+  let currentSection = "dashboard";
+  let calendarCursor = new Date();
+  let selectedCalendarDate = new Date().toISOString().slice(0,10);
+  let chartNonce = 0;
+  let saveTimer = null;
+  let presenceDraft = {};
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return structuredClone(defaultState);
+      const parsed = JSON.parse(raw);
+      return {
+        ...structuredClone(defaultState),
+        ...parsed,
+        settings: {...structuredClone(defaultState).settings, ...(parsed.settings||{})},
+        cloud: {...structuredClone(defaultState).cloud, ...(parsed.cloud||{})},
+        students: Array.isArray(parsed.students) ? parsed.students : structuredClone(defaultState).students,
+        classes: Array.isArray(parsed.classes) ? parsed.classes : structuredClone(defaultState).classes,
+        lessons: Array.isArray(parsed.lessons) ? parsed.lessons : structuredClone(defaultState).lessons,
+        presences: Array.isArray(parsed.presences) ? parsed.presences : [],
+        logs: Array.isArray(parsed.logs) ? parsed.logs : []
+      };
+    }catch(e){
+      console.error(e);
+      return structuredClone(defaultState);
+    }
+  }
+
+  function saveState(reason="salvamento"){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setStatus("Dados salvos com sucesso • " + reason);
+      }catch(e){
+        console.error(e);
+        setStatus("Aviso: não foi possível salvar tudo no navegador.");
+      }
+    }, 180);
+  }
+
+  function addLog(action, detail=""){
+    state.logs.unshift({
+      id: uid(),
+      action,
+      detail,
+      at: new Date().toISOString()
+    });
+    state.logs = state.logs.slice(0, 500);
+    saveState(action);
+  }
+
+  function setStatus(msg){
+    el("#statusBox").textContent = msg;
+  }
+
+  function applyTheme(){
+    let theme = state.settings.theme || "auto";
+    if(theme === "auto"){
+      theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.setProperty("--accent", state.settings.accent || "#275efe");
+    refreshLogo();
+  }
+
+  function refreshLogo(){
+    const box = el("#logoBox");
+    box.innerHTML = state.settings.logoData ? `<img alt="Logo" src="${state.settings.logoData}"/>` : "<span>🎵</span>";
+  }
+
+  function formatPhone(v){
+    const d = onlyDigits(v);
+    if(d.length <= 10){
+      return d.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, (_,a,b,c) => c ? `(${a}) ${b}-${c}` : d.length > 6 ? `(${a}) ${b}-${c}` : d.length > 2 ? `(${a}) ${b}` : d);
+    }
+    return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, (_,a,b,c) => c ? `(${a}) ${b}-${c}` : `(${a}) ${b}`);
+  }
+
+  function ageFromBirth(date){
+    if(!date) return null;
+    const birth = new Date(date + "T00:00:00");
+    if(isNaN(birth)) return null;
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  function ageRange(age){
+    if(age == null) return "Não informado";
+    if(age < 12) return "Infantil";
+    if(age < 18) return "Adolescente";
+    if(age < 30) return "Jovem";
+    if(age < 60) return "Adulto";
+    return "Sênior";
+  }
+
+  function classById(id){ return state.classes.find(c => c.id === id); }
+  function studentById(id){ return state.students.find(s => s.id === id); }
+
+  function navTo(section){
+    currentSection = section;
+    els(".nav button").forEach(b => b.classList.toggle("active", b.dataset.section === section));
+    els(".section").forEach(s => s.classList.toggle("active", s.id === section));
+    const titles = {
+      dashboard:["Dashboard","Resumo executivo, gráficos estáveis, atalhos rápidos e visão comparativa principal."],
+      alunos:["Alunos","Cadastro completo, edição, anexos, ficha e comunicação."],
+      turmas:["Turmas","Capacidade, vínculos, planejamento e acompanhamento."],
+      aulas:["Aulas","Calendário real navegável e programação por data."],
+      presencas:["Presenças","Lista por turma, justificativa e histórico de frequência."],
+      dados:["Dados","Backup local, importação, exportação e configuração de nuvem."]
+    };
+    el("#pageTitle").textContent = titles[section][0];
+    el("#pageDesc").textContent = titles[section][1];
+    renderSection(section);
+  }
+
+  function openModal(html){
+    el("#modalContent").innerHTML = html;
+    el("#modalBackdrop").classList.add("show");
+  }
+
+  function closeModal(){ el("#modalBackdrop").classList.remove("show"); }
+
+  function metricData(){
+    const churches = [...new Set(state.students.map(s => s.church).filter(Boolean))];
+    return [
+      {label:"Total geral de inscritos", value:state.students.length, help:"Exibe a lista alfabética de alunos cadastrados no sistema.", action:() => showNameList("Alunos inscritos", state.students.map(s => s.name).sort((a,b)=>a.localeCompare(b,'pt-BR')))},
+      {label:"Igrejas com inscritos", value:churches.length, help:"Exibe as igrejas com pelo menos um aluno inscrito.", action:() => showNameList("Igrejas com inscritos", churches.sort((a,b)=>a.localeCompare(b,'pt-BR')))},
+      {label:"Turmas cadastradas", value:state.classes.length, help:"Exibe as turmas cadastradas para o ano letivo.", action:() => showNameList("Turmas do ano", state.classes.map(c => `${c.name} (${c.year})`).sort((a,b)=>a.localeCompare(b,'pt-BR')))},
+      {label:"Aulas cadastradas", value:state.lessons.length, help:"Exibe as aulas e programações do ano.", action:() => showNameList("Aulas do ano", state.lessons.map(l => `${fmtDateBR(l.date)} • ${l.title}`).sort((a,b)=>a.localeCompare(b,'pt-BR')))}
+    ];
+  }
+
+  function showNameList(title, list){
+    openModal(`
+      <div class="modal-header">
+        <h3 style="margin:0">${title}</h3>
+        <button class="btn secondary" onclick="document.querySelector('#modalBackdrop').classList.remove('show')">Fechar</button>
+      </div>
+      <div class="panel" style="box-shadow:none;padding:0;border:none">
+        ${list.length ? `<ol>${list.map(i=>`<li style="margin:8px 0">${i}</li>`).join("")}</ol>` : `<div class="note">Nenhum item disponível.</div>`}
+      </div>
+    `);
+  }
+
+  function summaryRows(){
+    const active = state.students.filter(s => (s.status||"").toLowerCase() !== "inativo").length;
+    const totalCapacity = state.classes.reduce((a,c)=>a + Number(c.capacity||0),0);
+    const totalPres = state.presences.filter(p => p.status === "Presente").length;
+    const totalReg = state.presences.length;
+    const avgFreq = totalReg ? Math.round((totalPres / totalReg) * 100) : 0;
+    return [
+      ["Alunos ativos", active, "Cadastros marcados como ativos"],
+      ["Capacidade total", totalCapacity, "Soma das vagas das turmas"],
+      ["Frequência média", avgFreq + "%", "Baseada nos registros salvos"],
+      ["Aulas futuras", state.lessons.filter(l => l.date >= new Date().toISOString().slice(0,10)).length, "Programadas a partir de hoje"]
+    ];
+  }
+
+  function churchesRanking(){
+    const map = {};
+    state.students.forEach(s => {
+      const key = s.church || "Sem igreja";
+      map[key] = (map[key] || 0) + 1;
+    });
+    return Object.entries(map).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],'pt-BR')).slice(0,5);
+  }
+
+  function renderDashboard(){
+    const wrap = el("#metricCards");
+    wrap.innerHTML = metricData().map((m,idx) => `
+      <div class="metric">
+        <button class="help" data-help="${idx}">!</button>
+        <button class="card-link" data-metric="${idx}">
+          <div class="muted">${m.label}</div>
+          <div class="value">${m.value}</div>
+          <div class="muted">Clique para abrir detalhes</div>
+        </button>
+      </div>
+    `).join("");
+
+    wrap.querySelectorAll("[data-help]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const m = metricData()[Number(btn.dataset.help)];
+        openModal(`
+          <div class="modal-header">
+            <h3 style="margin:0">${m.label}</h3>
+            <button class="btn secondary" onclick="document.querySelector('#modalBackdrop').classList.remove('show')">Fechar</button>
+          </div>
+          <div class="note">${m.help}</div>
+        `);
+      });
+    });
+    wrap.querySelectorAll("[data-metric]").forEach(btn => btn.addEventListener("click", () => metricData()[Number(btn.dataset.metric)].action()));
+
+    el("#summaryTable").innerHTML = summaryRows().map(r => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td></tr>`).join("");
+
+    const top = churchesRanking();
+    el("#topChurches").innerHTML = top.length ? top.map(([church, qtd]) => `
+      <button class="pill-btn" data-church="${church}">
+        <span>${church}</span><span>${qtd} aluno(s)</span>
+      </button>
+    `).join("") : `<div class="note">Ainda não há igrejas suficientes para ranking.</div>`;
+    el("#topChurches").querySelectorAll("[data-church]").forEach(btn => btn.addEventListener("click", () => {
+      const church = btn.dataset.church;
+      const names = state.students.filter(s => (s.church || "Sem igreja") === church).map(s => s.name).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      showNameList("Alunos da igreja: " + church, names);
+    }));
+
+    renderMainChart();
+  }
+
+  function renderMainChart(){
+    const canvas = el("#mainChart");
+    const type = el("#chartTypeSelect").value;
+    const data = [
+      {label:"Alunos", value: state.students.length},
+      {label:"Igrejas", value: new Set(state.students.map(s=>s.church).filter(Boolean)).size},
+      {label:"Turmas", value: state.classes.length},
+      {label:"Aulas", value: state.lessons.length},
+      {label:"Presenças", value: state.presences.filter(p=>p.status==="Presente").length || 0}
+    ];
+    drawChart(canvas, type, data);
+  }
+
+  function drawChart(canvas, type, data){
+    chartNonce++;
+    const currentNonce = chartNonce;
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0,0,w,h);
+    if(currentNonce !== chartNonce) return;
+
+    const colors = ["#275efe","#17a34a","#cf3341","#d68609","#7c4dff","#00a8a8"];
+    const max = Math.max(1, ...data.map(d=>d.value));
+    ctx.font = "12px Segoe UI, sans-serif";
+    ctx.fillStyle = getCss("--muted");
+
+    if(type === "bar" || type === "area" || type === "line"){
+      const pad = {l:44,r:20,t:20,b:40};
+      const innerW = w - pad.l - pad.r;
+      const innerH = h - pad.t - pad.b;
+      ctx.strokeStyle = getCss("--line");
+      for(let i=0;i<5;i++){
+        const y = pad.t + (innerH/4)*i;
+        ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+      }
+      const step = innerW / data.length;
+      const pts = [];
+      data.forEach((d,i) => {
+        const x = pad.l + step*i + step/2;
+        const y = pad.t + innerH - (d.value/max)*innerH;
+        pts.push([x,y]);
+        ctx.fillStyle = getCss("--text");
+        ctx.fillText(d.label, x-20, h-12);
+        if(type === "bar" || type === "area"){
+          const bw = Math.min(52, step*0.6);
+          if(type === "bar"){
+            ctx.fillStyle = colors[i%colors.length];
+            ctx.fillRect(x-bw/2, y, bw, pad.t + innerH - y);
+          }
+        }
+      });
+      if(type === "line" || type === "area"){
+        ctx.beginPath();
+        pts.forEach((p,i)=> i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
+        if(type === "area"){
+          ctx.lineTo(pts[pts.length-1][0], pad.t + innerH);
+          ctx.lineTo(pts[0][0], pad.t + innerH);
+          ctx.closePath();
+          ctx.globalAlpha = .25;
+          ctx.fillStyle = colors[0];
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.beginPath();
+          pts.forEach((p,i)=> i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
+        }
+        ctx.strokeStyle = colors[0];
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        pts.forEach((p,i) => {
+          ctx.fillStyle = colors[i%colors.length];
+          ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, Math.PI*2); ctx.fill();
+        });
+      }
+    }
+
+    if(type === "pie" || type === "donut"){
+      const total = data.reduce((a,b)=>a+b.value,0) || 1;
+      const cx = w/2, cy = h/2, radius = Math.min(w,h)*0.28;
+      let start = -Math.PI/2;
+      data.forEach((d,i) => {
+        const ang = (d.value/total) * Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.fillStyle = colors[i%colors.length];
+        ctx.arc(cx,cy,radius,start,start+ang);
+        ctx.closePath();
+        ctx.fill();
+        start += ang;
+      });
+      if(type === "donut"){
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath(); ctx.arc(cx,cy,radius*0.5,0,Math.PI*2); ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+      }
+      data.forEach((d,i)=>{
+        ctx.fillStyle = colors[i%colors.length];
+        ctx.fillRect(18, 18 + i*24, 14, 14);
+        ctx.fillStyle = getCss("--text");
+        ctx.fillText(`${d.label}: ${d.value}`, 40, 30 + i*24);
+      });
+    }
+
+    if(type === "radar"){
+      const cx = w/2, cy = h/2, radius = Math.min(w,h)*0.33;
+      const steps = 5;
+      for(let s=1;s<=steps;s++){
+        ctx.beginPath();
+        data.forEach((d,i)=>{
+          const ang = (-Math.PI/2) + (Math.PI*2/data.length)*i;
+          const r = (radius/steps)*s;
+          const x = cx + Math.cos(ang)*r;
+          const y = cy + Math.sin(ang)*r;
+          i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = getCss("--line");
+        ctx.stroke();
+      }
+      data.forEach((d,i)=>{
+        const ang = (-Math.PI/2) + (Math.PI*2/data.length)*i;
+        const ax = cx + Math.cos(ang)*radius;
+        const ay = cy + Math.sin(ang)*radius;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ax,ay); ctx.strokeStyle = getCss("--line"); ctx.stroke();
+        ctx.fillStyle = getCss("--text");
+        ctx.fillText(d.label, ax + (ax<cx?-36:8), ay);
+      });
+      ctx.beginPath();
+      data.forEach((d,i)=>{
+        const ang = (-Math.PI/2) + (Math.PI*2/data.length)*i;
+        const r = (d.value/max)*radius;
+        const x = cx + Math.cos(ang)*r;
+        const y = cy + Math.sin(ang)*r;
+        i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(39,94,254,.18)";
+      ctx.fill();
+      data.forEach((d,i)=>{
+        const ang = (-Math.PI/2) + (Math.PI*2/data.length)*i;
+        const r = (d.value/max)*radius;
+        const x = cx + Math.cos(ang)*r;
+        const y = cy + Math.sin(ang)*r;
+        ctx.fillStyle = colors[i%colors.length];
+        ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = getCss("--accent");
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+    }
+  }
+
+  function getCss(varName){
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function renderStudents(){
+    const q = (el("#studentSearch").value || "").toLowerCase().trim();
+    const sort = el("#studentSort").value;
+    const arr = state.students
+      .filter(s => [s.name,s.church,s.region,s.email,formatPhone(s.phone)].join(" ").toLowerCase().includes(q))
+      .sort((a,b) => (a[sort]||"").localeCompare((b[sort]||""),'pt-BR'));
+
+    el("#studentsList").innerHTML = arr.length ? arr.map(s => {
+      const age = ageFromBirth(s.birthDate);
+      return `
+      <article class="student-card">
+        <div class="student-top">
+          <div class="avatar">${s.photo ? `<img src="${s.photo}" alt="Foto"/>` : s.name.split(" ").map(n=>n[0]).slice(0,2).join("")}</div>
+          <div>
+            <div class="name-line">
+              <h4>${s.name}</h4>
+              <span class="chip">${s.status || "Ativo"}</span>
+            </div>
+            <div class="chips" style="margin-top:8px">
+              <span class="chip">${s.church || "Sem igreja"}</span>
+              <span class="chip">${s.region || "Sem região"}</span>
+              <span class="chip">${age != null ? age + " anos" : "Sem idade"}</span>
+              <span class="chip">${ageRange(age)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="kv">
+          <div><strong>Telefone:</strong> ${formatPhone(s.phone)}</div>
+          <div><strong>E-mail:</strong> ${s.email || "—"}</div>
+          <div><strong>Pastor:</strong> ${s.pastorName || "—"}</div>
+          <div><strong>Contato do pastor:</strong> ${formatPhone(s.pastorPhone)}</div>
+        </div>
+        <div class="muted">${s.notes || "Sem observações."}</div>
+        <div class="actions">
+          <button class="btn secondary" data-edit-student="${s.id}">Editar</button>
+          <button class="btn secondary" data-ficha="${s.id}">Ficha PDF</button>
+          <button class="btn secondary" data-wa="${s.id}">WhatsApp</button>
+          <button class="btn danger" data-del-student="${s.id}">Excluir</button>
+        </div>
+      </article>`;
+    }).join("") : `<div class="note">Nenhum aluno encontrado.</div>`;
+
+    el("#studentsList").querySelectorAll("[data-edit-student]").forEach(b => b.addEventListener("click", () => editStudent(b.dataset.editStudent)));
+    el("#studentsList").querySelectorAll("[data-del-student]").forEach(b => b.addEventListener("click", () => removeStudent(b.dataset.delStudent)));
+    el("#studentsList").querySelectorAll("[data-wa]").forEach(b => b.addEventListener("click", () => {
+      const s = studentById(b.dataset.wa); if(!s) return;
+      const num = onlyDigits(s.phone);
+      if(!num) return alert("Aluno sem telefone cadastrado.");
+      window.open(`https://wa.me/55${num}`, "_blank");
+    }));
+    el("#studentsList").querySelectorAll("[data-ficha]").forEach(b => b.addEventListener("click", () => printStudentSheet(b.dataset.ficha)));
+  }
+
+  function studentForm(student={}){
+    const docs = (student.docs || []).map((d,i)=>`<li>${d.name} <button class="btn secondary" type="button" data-rmdoc="${i}">remover</button></li>`).join("");
+    return `
+      <div class="modal-header">
+        <h3 style="margin:0">${student.id ? "Editar aluno" : "Novo aluno"}</h3>
+        <button class="btn secondary" id="closeStudentModal">Fechar</button>
+      </div>
+      <form id="studentForm" class="editor">
+        <input name="name" placeholder="Nome completo" value="${student.name||""}" required />
+        <input name="status" placeholder="Status (Ativo/Inativo)" value="${student.status||"Ativo"}" />
+        <input name="phone" placeholder="Telefone" value="${student.phone||""}" />
+        <input name="email" placeholder="E-mail" value="${student.email||""}" />
+        <input name="church" placeholder="Igreja" value="${student.church||""}" />
+        <input name="region" placeholder="Região" value="${student.region||""}" />
+        <input name="pastorName" placeholder="Nome do pastor" value="${student.pastorName||""}" />
+        <input name="pastorPhone" placeholder="Telefone do pastor" value="${student.pastorPhone||""}" />
+        <input name="birthDate" type="date" value="${student.birthDate||""}" />
+        <input name="photoFile" type="file" accept="image/*" />
+        <input name="docsFile" type="file" accept="image/*,application/pdf" multiple class="full" />
+        <textarea name="notes" class="full" maxlength="2000" placeholder="Observações / justificativa / anotações (até 2000 caracteres)">${student.notes||""}</textarea>
+        <div class="full note">Documentos anexados:<ul>${docs || "<li>Nenhum documento anexado</li>"}</ul></div>
+        <div class="full footer-bar">
+          <span class="muted">Faixa etária calculada automaticamente ao salvar.</span>
+          <button class="btn" type="submit">Salvar aluno</button>
+        </div>
+      </form>
+    `;
+  }
+
+  function editStudent(id=null){
+    const student = id ? structuredClone(studentById(id) || {}) : {docs:[]};
+    openModal(studentForm(student));
+    el("#closeStudentModal").onclick = closeModal;
+    const form = el("#studentForm");
+    let docs = student.docs || [];
+    el("#modalContent").querySelectorAll("[data-rmdoc]").forEach(btn => btn.addEventListener("click", () => {
+      docs.splice(Number(btn.dataset.rmdoc),1);
+      editStudentReopen(student, form, docs);
+    }));
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        id: student.id || uid(),
+        name: fd.get("name"),
+        status: fd.get("status"),
+        phone: onlyDigits(fd.get("phone")),
+        email: fd.get("email"),
+        church: fd.get("church"),
+        region: fd.get("region"),
+        pastorName: fd.get("pastorName"),
+        pastorPhone: onlyDigits(fd.get("pastorPhone")),
+        birthDate: fd.get("birthDate"),
+        notes: clampText(fd.get("notes"), 2000),
+        photo: student.photo || "",
+        docs
+      };
+      const photoFile = fd.get("photoFile");
+      const docFiles = form.querySelector('[name="docsFile"]').files;
+      if(photoFile && photoFile.size){
+        payload.photo = await fileToDataURL(photoFile);
+      }
+      if(docFiles && docFiles.length){
+        for(const f of docFiles){
+          docs.push({name:f.name, type:f.type, data:await fileToDataURL(f)});
+        }
+      }
+      upsertStudent(payload);
+      closeModal();
+    });
+  }
+
+  function editStudentReopen(student, oldForm, docs){
+    const merged = {...student, docs};
+    openModal(studentForm(merged));
+    el("#closeStudentModal").onclick = closeModal;
+    const form = el("#studentForm");
+    el("#modalContent").querySelectorAll("[data-rmdoc]").forEach(btn => btn.addEventListener("click", () => {
+      docs.splice(Number(btn.dataset.rmdoc),1);
+      editStudentReopen(student, form, docs);
+    }));
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        id: student.id || uid(),
+        name: fd.get("name"),
+        status: fd.get("status"),
+        phone: onlyDigits(fd.get("phone")),
+        email: fd.get("email"),
+        church: fd.get("church"),
+        region: fd.get("region"),
+        pastorName: fd.get("pastorName"),
+        pastorPhone: onlyDigits(fd.get("pastorPhone")),
+        birthDate: fd.get("birthDate"),
+        notes: clampText(fd.get("notes"), 2000),
+        photo: student.photo || "",
+        docs
+      };
+      const photoFile = fd.get("photoFile");
+      const docFiles = form.querySelector('[name="docsFile"]').files;
+      if(photoFile && photoFile.size){
+        payload.photo = await fileToDataURL(photoFile);
+      }
+      if(docFiles && docFiles.length){
+        for(const f of docFiles){
+          docs.push({name:f.name, type:f.type, data:await fileToDataURL(f)});
+        }
+      }
+      upsertStudent(payload);
+      closeModal();
+    });
+  }
+
+  function upsertStudent(student){
+    const idx = state.students.findIndex(s => s.id === student.id);
+    if(idx >= 0) state.students[idx] = student;
+    else state.students.push(student);
+    addLog(idx >=0 ? "editar_aluno" : "novo_aluno", student.name);
+    renderAll();
+  }
+
+  function removeStudent(id){
+    const s = studentById(id); if(!s) return;
+    if(!confirm(`Excluir o aluno "${s.name}"?`)) return;
+    state.students = state.students.filter(x => x.id !== id);
+    state.classes.forEach(c => c.studentIds = (c.studentIds || []).filter(i => i !== id));
+    state.presences = state.presences.filter(p => p.studentId !== id);
+    addLog("excluir_aluno", s.name);
+    renderAll();
+  }
+
+  function printStudentSheet(id){
+    const s = studentById(id); if(!s) return;
+    const age = ageFromBirth(s.birthDate);
+    const turmas = state.classes.filter(c => (c.studentIds||[]).includes(s.id)).map(c => c.name).join(", ") || "Nenhuma turma vinculada";
+    const pres = state.presences.filter(p => p.studentId === s.id);
+    const html = `
+      <html><head><title>Ficha do aluno</title><style>
+      body{font-family:Segoe UI,Arial;padding:24px}
+      h1{margin:0 0 10px} .row{margin:10px 0} .chip{display:inline-block;padding:6px 10px;border:1px solid #ccc;border-radius:999px;margin-right:8px}
+      img{max-width:120px;border-radius:16px}
+      </style></head><body>
+      <h1>${s.name}</h1>
+      ${s.photo ? `<img src="${s.photo}" alt="Foto"/>` : ""}
+      <div class="row"><strong>Telefone:</strong> ${formatPhone(s.phone)}</div>
+      <div class="row"><strong>E-mail:</strong> ${s.email || "—"}</div>
+      <div class="row"><strong>Igreja:</strong> ${s.church || "—"}</div>
+      <div class="row"><strong>Região:</strong> ${s.region || "—"}</div>
+      <div class="row"><strong>Idade:</strong> ${age != null ? age + " anos" : "Não informada"} • <strong>Faixa:</strong> ${ageRange(age)}</div>
+      <div class="row"><strong>Pastor:</strong> ${s.pastorName || "—"} (${formatPhone(s.pastorPhone)})</div>
+      <div class="row"><strong>Turmas:</strong> ${turmas}</div>
+      <div class="row"><strong>Observações:</strong> ${s.notes || "—"}</div>
+      <div class="row"><strong>Registros de presença:</strong> ${pres.length}</div>
+      <script>window.onload=()=>window.print();<\/script>
+      </body></html>
+    `;
+    const w = window.open("", "_blank");
+    if(w){ w.document.write(html); w.document.close(); }
+  }
+
+  function renderClasses(){
+    const q = (el("#classSearch").value || "").toLowerCase().trim();
+    const arr = state.classes.filter(c => [c.name,c.church,String(c.year)].join(" ").toLowerCase().includes(q))
+      .sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+    el("#classesList").innerHTML = arr.length ? arr.map(c => {
+      const linkedNames = (c.studentIds||[]).map(studentById).filter(Boolean).map(s=>s.name).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      return `
+      <article class="turma-card">
+        <div class="name-line"><h4>${c.name}</h4><span class="chip">${c.year}</span></div>
+        <div class="kv">
+          <div><strong>Igreja:</strong> ${c.church || "—"}</div>
+          <div><strong>Capacidade:</strong> ${c.capacity || 0}</div>
+          <div><strong>Inscritos:</strong> ${(c.studentIds||[]).length}</div>
+          <div><strong>Vagas:</strong> ${Math.max(0, Number(c.capacity||0) - (c.studentIds||[]).length)}</div>
+        </div>
+        <div class="muted">${c.notes || "Sem observações."}</div>
+        <div class="note">Alunos vinculados: ${linkedNames.length ? linkedNames.join(", ") : "Nenhum aluno vinculado."}</div>
+        <div class="actions">
+          <button class="btn secondary" data-edit-class="${c.id}">Editar</button>
+          <button class="btn danger" data-del-class="${c.id}">Excluir</button>
+        </div>
+      </article>`;
+    }).join("") : `<div class="note">Nenhuma turma encontrada.</div>`;
+
+    el("#classesList").querySelectorAll("[data-edit-class]").forEach(b => b.addEventListener("click", () => editClass(b.dataset.editClass)));
+    el("#classesList").querySelectorAll("[data-del-class]").forEach(b => b.addEventListener("click", () => removeClass(b.dataset.delClass)));
+  }
+
+  function classForm(item={}){
+    const opts = state.students.sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(s => `
+      <label class="chip" style="margin:4px">
+        <input type="checkbox" name="studentIds" value="${s.id}" ${(item.studentIds||[]).includes(s.id) ? "checked" : ""}/>
+        ${s.name}
+      </label>
+    `).join("");
+    return `
+      <div class="modal-header">
+        <h3 style="margin:0">${item.id ? "Editar turma" : "Nova turma"}</h3>
+        <button class="btn secondary" id="closeClassModal">Fechar</button>
+      </div>
+      <form id="classForm" class="editor">
+        <input name="name" placeholder="Nome da turma" value="${item.name||""}" required />
+        <input name="year" type="number" placeholder="Ano" value="${item.year||2026}" />
+        <input name="capacity" type="number" placeholder="Capacidade" value="${item.capacity||""}" />
+        <input name="church" placeholder="Igreja / polo" value="${item.church||""}" />
+        <textarea name="notes" class="full" placeholder="Observações">${item.notes||""}</textarea>
+        <div class="full note"><strong>Vincular alunos:</strong><div style="margin-top:8px">${opts || "Nenhum aluno cadastrado."}</div></div>
+        <div class="full footer-bar"><span class="muted">As presenças usam a lista vinculada nesta turma.</span><button class="btn" type="submit">Salvar turma</button></div>
+      </form>
+    `;
+  }
+
+  function editClass(id=null){
+    const item = id ? structuredClone(classById(id) || {}) : {studentIds:[]};
+    openModal(classForm(item));
+    el("#closeClassModal").onclick = closeModal;
+    el("#classForm").addEventListener("submit", ev => {
+      ev.preventDefault();
+      const form = ev.currentTarget;
+      const fd = new FormData(form);
+      const payload = {
+        id: item.id || uid(),
+        name: fd.get("name"),
+        year: Number(fd.get("year") || 2026),
+        capacity: Number(fd.get("capacity") || 0),
+        church: fd.get("church"),
+        notes: fd.get("notes"),
+        studentIds: fd.getAll("studentIds")
+      };
+      const idx = state.classes.findIndex(c => c.id === payload.id);
+      if(idx >= 0) state.classes[idx] = payload; else state.classes.push(payload);
+      addLog(idx >= 0 ? "editar_turma" : "nova_turma", payload.name);
+      closeModal();
+      renderAll();
+    });
+  }
+
+  function removeClass(id){
+    const item = classById(id); if(!item) return;
+    if(!confirm(`Excluir a turma "${item.name}"?`)) return;
+    state.classes = state.classes.filter(c => c.id !== id);
+    state.lessons = state.lessons.filter(l => l.classId !== id);
+    state.presences = state.presences.filter(p => p.classId !== id);
+    addLog("excluir_turma", item.name);
+    renderAll();
+  }
+
+  function renderLessons(){
+    const filterClassId = el("#lessonFilterTurma").value;
+    const upcoming = state.lessons
+      .filter(l => !filterClassId || l.classId === filterClassId)
+      .sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time))
+      .slice(0,12);
+
+    el("#lessonsList").innerHTML = upcoming.length ? upcoming.map(l => `
+      <article class="aula-card" style="margin-bottom:10px">
+        <div class="name-line"><h4>${l.title}</h4><span class="chip">${fmtDateBR(l.date)} • ${l.time || "—"}</span></div>
+        <div><strong>Turma:</strong> ${(classById(l.classId)||{}).name || "Não vinculada"}</div>
+        <div><strong>Local:</strong> ${l.location || "—"}</div>
+        <div class="muted">${l.description || "Sem descrição."}</div>
+        <div class="actions">
+          <button class="btn secondary" data-edit-lesson="${l.id}">Editar</button>
+          <button class="btn danger" data-del-lesson="${l.id}">Excluir</button>
+        </div>
+      </article>
+    `).join("") : `<div class="note">Nenhuma aula encontrada.</div>`;
+
+    el("#lessonsList").querySelectorAll("[data-edit-lesson]").forEach(b => b.addEventListener("click", () => editLesson(b.dataset.editLesson)));
+    el("#lessonsList").querySelectorAll("[data-del-lesson]").forEach(b => b.addEventListener("click", () => removeLesson(b.dataset.delLesson)));
+  }
+
+  function lessonForm(item={}){
+    const options = [`<option value="">Sem turma vinculada</option>`].concat(
+      state.classes.map(c => `<option value="${c.id}" ${item.classId===c.id ? "selected" : ""}>${c.name}</option>`)
+    ).join("");
+    return `
+      <div class="modal-header">
+        <h3 style="margin:0">${item.id ? "Editar aula" : "Nova aula"}</h3>
+        <button class="btn secondary" id="closeLessonModal">Fechar</button>
+      </div>
+      <form id="lessonForm" class="editor">
+        <input name="title" placeholder="Título da aula" value="${item.title||""}" required />
+        <select name="classId">${options}</select>
+        <input name="date" type="date" value="${item.date||selectedCalendarDate||""}" />
+        <input name="time" type="time" value="${item.time||""}" />
+        <input name="location" placeholder="Local" value="${item.location||""}" />
+        <textarea name="description" class="full" placeholder="Descrição">${item.description||""}</textarea>
+        <div class="full footer-bar"><span class="muted">A aula aparecerá no calendário e na programação diária.</span><button class="btn" type="submit">Salvar aula</button></div>
+      </form>
+    `;
+  }
+
+  function editLesson(id=null){
+    const item = id ? structuredClone(state.lessons.find(l => l.id === id) || {}) : {};
+    openModal(lessonForm(item));
+    el("#closeLessonModal").onclick = closeModal;
+    el("#lessonForm").addEventListener("submit", ev => {
+      ev.preventDefault();
+      const fd = new FormData(ev.currentTarget);
+      const payload = {
+        id: item.id || uid(),
+        title: fd.get("title"),
+        classId: fd.get("classId"),
+        date: fd.get("date"),
+        time: fd.get("time"),
+        location: fd.get("location"),
+        description: fd.get("description")
+      };
+      const idx = state.lessons.findIndex(l => l.id === payload.id);
+      if(idx >=0) state.lessons[idx] = payload; else state.lessons.push(payload);
+      addLog(idx >= 0 ? "editar_aula" : "nova_aula", payload.title);
+      closeModal();
+      renderAll();
+    });
+  }
+
+  function removeLesson(id){
+    const item = state.lessons.find(l => l.id === id); if(!item) return;
+    if(!confirm(`Excluir a aula "${item.title}"?`)) return;
+    state.lessons = state.lessons.filter(l => l.id !== id);
+    addLog("excluir_aula", item.title);
+    renderAll();
+  }
+
+  function renderCalendar(){
+    const year = calendarCursor.getFullYear();
+    const month = calendarCursor.getMonth();
+    const monthName = calendarCursor.toLocaleDateString("pt-BR",{month:"long", year:"numeric"});
+    el("#calendarTitle").textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+    const grid = el("#calendarGrid");
+    const weekdays = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    const first = new Date(year, month, 1);
+    const startWeekday = first.getDay();
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const prevDays = new Date(year, month, 0).getDate();
+
+    const cells = [];
+    for(let i=startWeekday-1;i>=0;i--){
+      const day = prevDays - i;
+      const date = new Date(year, month-1, day);
+      cells.push(dayCell(date, true));
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const date = new Date(year, month, d);
+      cells.push(dayCell(date, false));
+    }
+    while(cells.length % 7 !== 0){
+      const date = new Date(year, month+1, cells.length % 7 + 1);
+      cells.push(dayCell(date, true));
+    }
+    html += cells.join("");
+    grid.innerHTML = html;
+    grid.querySelectorAll(".day-cell").forEach(cell => cell.addEventListener("click", () => {
+      selectedCalendarDate = cell.dataset.date;
+      renderDayProgram();
+      grid.querySelectorAll(".day-cell").forEach(c=>c.style.outline="none");
+      cell.style.outline = `2px solid ${getCss("--accent")}`;
+    }));
+    renderDayProgram();
+  }
+
+  function dayCell(date, other){
+    const iso = date.toISOString().slice(0,10);
+    const hasEvent = state.lessons.some(l => l.date === iso);
+    return `<div class="day-cell ${other ? "other" : ""} ${hasEvent ? "has-event" : ""}" data-date="${iso}">
+      <strong>${date.getDate()}</strong>
+      <div class="muted" style="font-size:.8rem;margin-top:6px">${hasEvent ? "Aulas marcadas" : ""}</div>
+    </div>`;
+  }
+
+  function renderDayProgram(){
+    const list = state.lessons.filter(l => l.date === selectedCalendarDate).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    el("#dayProgram").innerHTML = list.length ? `
+      <div><strong>${fmtDateBR(selectedCalendarDate)}</strong></div>
+      <ul>${list.map(l => `<li><strong>${l.time || "Sem horário"}</strong> • ${l.title} • ${(classById(l.classId)||{}).name || "Sem turma"} • ${l.location || "sem local"}</li>`).join("")}</ul>
+    ` : `Nenhuma aula programada para ${fmtDateBR(selectedCalendarDate)}.`;
+  }
+
+  function renderPresence(){
+    const select = el("#presenceClassSelect");
+    const selected = select.value;
+    const turma = classById(selected);
+    const students = turma ? (turma.studentIds||[]).map(studentById).filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')) : [];
+    el("#presenceList").innerHTML = turma ? students.map(s => {
+      const key = `${selected}|${el("#presenceDate").value}|${s.id}`;
+      const row = presenceDraft[key] || existingPresence(selected, el("#presenceDate").value, s.id) || {status:"Presente", justification:""};
+      return `
+      <div class="presence-item ${row.status === "Justificada" ? "show-just" : ""}" data-presence-key="${key}">
+        <div class="presence-row">
+          <div><strong>${s.name}</strong><div class="muted">${s.church || "Sem igreja"} • ${formatPhone(s.phone)}</div></div>
+          <select class="field status-select">
+            <option ${row.status==="Presente"?"selected":""}>Presente</option>
+            <option ${row.status==="Ausente"?"selected":""}>Ausente</option>
+            <option ${row.status==="Justificada"?"selected":""}>Justificada</option>
+          </select>
+        </div>
+        <div class="just-box">
+          <textarea class="field just-text" maxlength="2000" placeholder="Justificativa (até 2000 caracteres)">${row.justification || ""}</textarea>
+        </div>
+      </div>
+      `;
+    }).join("") : `<div class="note">Selecione uma turma para registrar a presença dos alunos vinculados.</div>`;
+
+    el("#presenceList").querySelectorAll(".presence-item").forEach(item => {
+      const key = item.dataset.presenceKey;
+      const sel = item.querySelector(".status-select");
+      const txt = item.querySelector(".just-text");
+      sel.addEventListener("change", () => {
+        item.classList.toggle("show-just", sel.value === "Justificada");
+        presenceDraft[key] = {status: sel.value, justification: txt ? clampText(txt.value) : ""};
+      });
+      if(txt){
+        txt.addEventListener("input", () => {
+          presenceDraft[key] = {status: sel.value, justification: clampText(txt.value)};
+        });
+      }
+    });
+
+    renderPresenceHistory();
+  }
+
+  function existingPresence(classId, date, studentId){
+    return state.presences.find(p => p.classId === classId && p.date === date && p.studentId === studentId);
+  }
+
+  function savePresence(){
+    const classId = el("#presenceClassSelect").value;
+    const date = el("#presenceDate").value;
+    const turma = classById(classId);
+    if(!turma || !date) return alert("Selecione turma e data.");
+    const items = els(".presence-item", el("#presenceList"));
+    items.forEach(item => {
+      const key = item.dataset.presenceKey;
+      const studentId = key.split("|")[2];
+      const status = item.querySelector(".status-select").value;
+      const justification = clampText(item.querySelector(".just-text")?.value || "", 2000);
+      const idx = state.presences.findIndex(p => p.classId === classId && p.date === date && p.studentId === studentId);
+      const payload = {id: idx >= 0 ? state.presences[idx].id : uid(), classId, date, studentId, status, justification};
+      if(idx >= 0) state.presences[idx] = payload; else state.presences.push(payload);
+      presenceDraft[key] = payload;
+    });
+    addLog("salvar_presenca", `${turma.name} • ${fmtDateBR(date)}`);
+    renderAll();
+  }
+
+  function renderPresenceHistory(){
+    const classId = el("#presenceClassSelect").value;
+    const turma = classById(classId);
+    if(!turma){
+      el("#presenceHistory").innerHTML = "Selecione uma turma para carregar histórico e frequência.";
+      return;
+    }
+    const rows = state.presences.filter(p => p.classId === classId);
+    const grouped = {};
+    rows.forEach(r => {
+      grouped[r.studentId] = grouped[r.studentId] || {total:0,pres:0,aus:0,jus:0};
+      grouped[r.studentId].total++;
+      if(r.status === "Presente") grouped[r.studentId].pres++;
+      if(r.status === "Ausente") grouped[r.studentId].aus++;
+      if(r.status === "Justificada") grouped[r.studentId].jus++;
+    });
+    const html = (turma.studentIds||[]).map(id => {
+      const s = studentById(id); if(!s) return "";
+      const g = grouped[id] || {total:0,pres:0,aus:0,jus:0};
+      const freq = g.total ? Math.round((g.pres/g.total)*100) : 0;
+      return `<tr><td>${s.name}</td><td>${g.pres}</td><td>${g.aus}</td><td>${g.jus}</td><td>${freq}%</td></tr>`;
+    }).join("");
+    el("#presenceHistory").innerHTML = `
+      <table class="list-table">
+        <thead><tr><th>Aluno</th><th>Pres.</th><th>Aus.</th><th>Just.</th><th>Freq.</th></tr></thead>
+        <tbody>${html || `<tr><td colspan="5">Nenhum registro ainda.</td></tr>`}</tbody>
+      </table>
+    `;
+  }
+
+  function syncSelects(){
+    const classOptions = [`<option value="">Todas as turmas</option>`].concat(state.classes.map(c => `<option value="${c.id}">${c.name}</option>`)).join("");
+    el("#lessonFilterTurma").innerHTML = classOptions;
+    el("#presenceClassSelect").innerHTML = `<option value="">Selecione a turma</option>` + state.classes.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+  }
+
+  function renderDataFields(){
+    el("#cloudTenant").value = state.cloud.tenant || "";
+    el("#cloudClient").value = state.cloud.client || "";
+    el("#cloudRedirect").value = state.cloud.redirect || "";
+    el("#cloudFolder").value = state.cloud.folder || "";
+    el("#cloudMode").value = state.cloud.mode || "";
+    el("#cloudNote").value = state.cloud.note || "";
+
+    el("#setCloudMode").value = state.cloud.mode || "";
+    el("#setCloudFolder").value = state.cloud.folder || "";
+    el("#setCloudExtra").value = state.cloud.extra || "";
+  }
+
+  function renderSection(section){
+    if(section === "dashboard") renderDashboard();
+    if(section === "alunos") renderStudents();
+    if(section === "turmas") renderClasses();
+    if(section === "aulas"){ renderCalendar(); renderLessons(); }
+    if(section === "presencas") renderPresence();
+    if(section === "dados") renderDataFields();
+  }
+
+  function renderAll(){
+    syncSelects();
+    renderSection(currentSection);
+    if(currentSection !== "dashboard") renderDashboard();
+    saveState("atualização do sistema");
+  }
+
+  async function fileToDataURL(file){
+    return new Promise((resolve,reject)=>{
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  function exportJson(){
+    downloadFile("projeto_aprendiz_2026_backup.json", JSON.stringify(state, null, 2), "application/json");
+  }
+
+  function exportCsvStudents(){
+    const header = ["nome","telefone","email","igreja","regiao","pastor","telefone_pastor","status","data_nascimento"];
+    const lines = state.students.map(s => [s.name, formatPhone(s.phone), s.email, s.church, s.region, s.pastorName, formatPhone(s.pastorPhone), s.status, s.birthDate].map(csvEscape).join(";"));
+    downloadFile("alunos_projeto_aprendiz_2026.csv", [header.join(";"), ...lines].join("\n"), "text/csv;charset=utf-8");
+  }
+
+  function exportLogs(){
+    downloadFile("logs_projeto_aprendiz_2026.json", JSON.stringify(state.logs, null, 2), "application/json");
+  }
+
+  function csvEscape(v){
+    const s = String(v ?? "");
+    return `"${s.replace(/"/g,'""')}"`;
+  }
+
+  function downloadFile(name, content, type){
+    const blob = new Blob([content], {type});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importJson(file){
+    const fr = new FileReader();
+    fr.onload = () => {
+      try{
+        const parsed = JSON.parse(fr.result);
+        state = {
+          ...structuredClone(defaultState),
+          ...parsed,
+          settings:{...structuredClone(defaultState).settings,...(parsed.settings||{})},
+          cloud:{...structuredClone(defaultState).cloud,...(parsed.cloud||{})},
+        };
+        addLog("importar_backup", file.name);
+        applyTheme();
+        renderAll();
+      }catch(e){
+        alert("Arquivo JSON inválido.");
+      }
+    };
+    fr.readAsText(file);
+  }
+
+  function saveCloudConfig(){
+    state.cloud.tenant = el("#cloudTenant").value;
+    state.cloud.client = el("#cloudClient").value;
+    state.cloud.redirect = el("#cloudRedirect").value;
+    state.cloud.folder = el("#cloudFolder").value;
+    state.cloud.mode = el("#cloudMode").value;
+    state.cloud.note = el("#cloudNote").value;
+    state.cloud.extra = el("#setCloudExtra").value || state.cloud.extra;
+    addLog("salvar_config_nuvem", state.cloud.folder || "sem pasta");
+    renderAll();
+  }
+
+  function bindEvents(){
+    if(window.__APP_BOUND__) return;
+    window.__APP_BOUND__ = true;
+
+    els(".nav button").forEach(b => b.addEventListener("click", () => navTo(b.dataset.section)));
+    el("#modalBackdrop").addEventListener("click", e => { if(e.target.id === "modalBackdrop") closeModal(); });
+    el("#studentSearch").addEventListener("input", renderStudents);
+    el("#studentSort").addEventListener("change", renderStudents);
+    el("#classSearch").addEventListener("input", renderClasses);
+    el("#newStudentBtn").addEventListener("click", () => editStudent());
+    el("#newClassBtn").addEventListener("click", () => editClass());
+    el("#newLessonBtn").addEventListener("click", () => editLesson());
+    el("#prevMonthBtn").addEventListener("click", () => { calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth()-1, 1); renderCalendar(); });
+    el("#nextMonthBtn").addEventListener("click", () => { calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth()+1, 1); renderCalendar(); });
+    el("#lessonFilterTurma").addEventListener("change", renderLessons);
+    el("#presenceClassSelect").addEventListener("change", renderPresence);
+    el("#presenceDate").value = new Date().toISOString().slice(0,10);
+    el("#presenceDate").addEventListener("change", renderPresence);
+    el("#savePresenceBtn").addEventListener("click", savePresence);
+    el("#chartTypeSelect").addEventListener("change", renderMainChart);
+    el("#refreshChartBtn").addEventListener("click", renderMainChart);
+
+    el("#exportJsonBtn").addEventListener("click", exportJson);
+    el("#exportCsvBtn").addEventListener("click", exportCsvStudents);
+    el("#exportLogsBtn").addEventListener("click", exportLogs);
+    el("#importJsonInput").addEventListener("change", e => { const f = e.target.files[0]; if(f) importJson(f); });
+    el("#saveCloudBtn").addEventListener("click", saveCloudConfig);
+
+    el("#openSettingsBtn").addEventListener("click", () => el("#settingsBackdrop").classList.add("show"));
+    el("#closeSettingsBtn").addEventListener("click", () => el("#settingsBackdrop").classList.remove("show"));
+    el("#settingsBackdrop").addEventListener("click", e => { if(e.target.id === "settingsBackdrop") el("#settingsBackdrop").classList.remove("show"); });
+
+    els("#settingsTabs button").forEach(btn => btn.addEventListener("click", () => {
+      els("#settingsTabs button").forEach(b => b.classList.toggle("active", b === btn));
+      els(".tab-pane", el("#settingsBackdrop")).forEach(p => p.classList.toggle("active", p.id === btn.dataset.tab));
+    }));
+
+    el("#themeSelect").addEventListener("change", () => {
+      state.settings.theme = el("#themeSelect").value;
+      applyTheme();
+      addLog("alterar_tema", state.settings.theme);
+      saveState("tema");
+      renderAll();
+    });
+
+    el("#accentInput").addEventListener("input", () => {
+      state.settings.accent = el("#accentInput").value;
+      applyTheme();
+      saveState("cor principal");
+      renderMainChart();
+    });
+
+    el("#logoInput").addEventListener("change", async e => {
+      const f = e.target.files[0];
+      if(!f) return;
+      state.settings.logoData = await fileToDataURL(f);
+      applyTheme();
+      addLog("alterar_logo", f.name);
+      saveState("logo");
+    });
+
+    el("#setCloudMode").addEventListener("input", () => { state.cloud.mode = el("#setCloudMode").value; saveState("configuração de nuvem"); });
+    el("#setCloudFolder").addEventListener("input", () => { state.cloud.folder = el("#setCloudFolder").value; saveState("configuração de nuvem"); });
+    el("#setCloudExtra").addEventListener("input", () => { state.cloud.extra = el("#setCloudExtra").value; saveState("configuração de nuvem"); });
+
+    window.addEventListener("resize", debounce(() => { if(currentSection === "dashboard") renderMainChart(); if(currentSection === "aulas") renderCalendar(); }, 120));
+    if(window.matchMedia){
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
+        if(state.settings.theme === "auto"){ applyTheme(); renderAll(); }
+      });
+    }
+  }
+
+  function debounce(fn, ms=180){
+    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  function init(){
+    if(window.__APP_INIT__) return;
+    window.__APP_INIT__ = true;
+    applyTheme();
+    el("#themeSelect").value = state.settings.theme || "auto";
+    el("#accentInput").value = state.settings.accent || "#275efe";
+    bindEvents();
+    renderAll();
+    navTo("dashboard");
+    addLog("abrir_app", "Inicialização estável");
+  }
+
+  document.addEventListener("DOMContentLoaded", init, {once:true});
+})();
+</script>
+</body>
+</html>
