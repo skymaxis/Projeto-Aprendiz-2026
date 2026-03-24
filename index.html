@@ -200,16 +200,19 @@
     .kpi-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:.85rem; align-items:stretch; }
     .kpi-card-shell { position:relative; overflow:hidden; }
     .kpi-card-shell::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg, rgba(255,255,255,.08), transparent 42%); }
+    .kpi-topbar { display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; margin-bottom:.55rem; }
+    .kpi-topbar .label { margin:0; flex:1; padding-right:.25rem; }
     .kpi-button { width:100%; text-align:left; border:none; cursor:pointer; background:transparent; padding:0; color:inherit; }
     .kpi-button:hover { transform:translateY(-1px); }
     .kpi-info-btn {
-      position:absolute; top:.8rem; right:.8rem; width:1.9rem; height:1.9rem; border-radius:999px; border:1px solid var(--line);
-      background:var(--card); color:var(--text); display:grid; place-items:center; cursor:pointer; font-weight:800; z-index:2;
-      box-shadow:0 8px 22px rgba(15,23,42,.08);
+      position:static; width:1.95rem; height:1.95rem; border-radius:999px; border:1px solid var(--line);
+      background:linear-gradient(180deg, var(--card), var(--card-2)); color:var(--text); display:grid; place-items:center; cursor:pointer; font-weight:800; flex:none;
+      box-shadow:0 8px 22px rgba(15,23,42,.08); margin-top:-.05rem;
     }
     .kpi-info-btn:hover { transform:translateY(-1px); }
 
     .modal-back-btn { margin-right:.55rem; }
+    .modal-back-btn .arrow-only { font-size:1.02rem; line-height:1; }
     .institutional-modal-header-actions, .modal-inline-actions { display:flex; gap:.55rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
     .kpi.premium-card .value { font-size:2rem; line-height:1.05; padding-right:2.2rem; }
@@ -828,9 +831,11 @@
           <div class="kpi-grid">
             ${kpis.map(card => `
               <div class="card kpi premium-card kpi-card-shell">
-                <button class="kpi-info-btn" data-kpi-info="${card.key}" title="Entender indicador" aria-label="Entender indicador">?</button>
-                <button class="kpi-button" data-kpi="${card.key}">
+                <div class="kpi-topbar">
                   <div class="label">${card.label}</div>
+                  <button class="kpi-info-btn" data-kpi-info="${card.key}" title="Entender indicador" aria-label="Entender indicador">?</button>
+                </div>
+                <button class="kpi-button" data-kpi="${card.key}">
                   <div class="value">${card.value}</div>
                   <div class="kpi-hint">${card.hint}</div>
                 </button>
@@ -1838,7 +1843,7 @@ function renderStudents() {
           const back = document.createElement('button');
           back.className = 'btn secondary modal-back-btn';
           back.type = 'button';
-          back.innerHTML = '← Voltar';
+          back.innerHTML = '<span class="arrow-only">←</span> Voltar';
           back.onclick = goBackEntityModal;
           parent.insertBefore(back, btn);
         }
