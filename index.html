@@ -212,11 +212,12 @@
     .kpi-info-btn:hover { transform:translateY(-1px); }
 
     .modal-back-btn {
+      width:48px; height:48px; border-radius:999px; padding:0; display:grid; place-items:center;
       position:absolute; left:1rem; top:1rem; width:2.5rem; height:2.5rem; min-width:2.5rem; padding:0;
       border-radius:999px; display:grid; place-items:center; z-index:3;
       box-shadow:0 8px 20px rgba(15,23,42,.08);
     }
-    .modal-back-btn .arrow-only { font-size:1.08rem; line-height:1; }
+    .modal-back-btn .arrow-only { font-size:1.55rem; line-height:1; font-weight:800; }
     .modal-back-btn .back-label { display:none; }
     .institutional-modal-header-actions, .modal-inline-actions { display:flex; gap:.55rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
@@ -224,10 +225,12 @@
     .kpi-hint { margin-top:.45rem; color:var(--muted); font-size:.84rem; max-width:32ch; }
     .dashboard-main-card { position:relative; }
     .dashboard-header-row { display:flex; gap:1rem; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:1rem; padding-right:3.65rem; }
+    .dashboard-title-wrap { flex:1 1 100%; min-width:0; }
+    .dashboard-controls { width:100%; margin-left:0; justify-content:flex-start; }
     .dashboard-title-wrap h3 { margin:0; }
     .dashboard-title-wrap p { margin:.3rem 0 0; color:var(--muted); max-width:62ch; }
     .dashboard-controls { display:flex; gap:.65rem; align-items:flex-end; flex-wrap:wrap; margin-left:auto; justify-content:flex-start; }
-    .chart-select-wrap { min-width:240px; margin-right:auto; text-align:left; }
+    .chart-select-wrap { min-width:240px; margin-right:auto; margin-left:0; text-align:left; }
     .icon-refresh { width:44px; height:44px; border-radius:999px; padding:0; display:grid; place-items:center; align-self:flex-start; }
     .dashboard-main-refresh { position:absolute; top:1rem; right:1rem; z-index:2; }
     .icon-refresh svg { width:18px; height:18px; }
@@ -290,6 +293,8 @@
     .institutional-modal-subtitle { margin:.3rem 0 0; color:var(--muted); }
     .institutional-modal-body { padding:0 1.2rem 1.2rem; display:grid; gap:1rem; }
     .institutional-modal-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.7rem; padding:0 1.2rem 1.2rem; }
+    .modal-close-btn { position:absolute; top:1rem; right:1rem; width:44px; height:44px; border:none; border-radius:999px; background:linear-gradient(135deg, #ef4444, #b91c1c); color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 12px 24px rgba(185,28,28,.28); font-size:1.3rem; font-weight:800; z-index:3; }
+    .modal-close-btn:hover { transform:translateY(-1px); filter:brightness(1.03); }
     .quick-view-grid { gap:1rem; }
     .quick-view-hero { border:1px solid var(--line); border-radius:26px; padding:1.15rem; background:linear-gradient(180deg, var(--card), var(--card-2)); box-shadow:var(--shadow); }
     .quick-view-hero.dark { background:linear-gradient(135deg, rgba(15,23,42,.98), rgba(30,41,59,.92)); color:#fff; border-color:rgba(255,255,255,.08); }
@@ -310,7 +315,8 @@
     @media (max-width: 760px) {
       .quick-view-grid-2 { grid-template-columns:1fr; }
       .institutional-modal-header { flex-direction:column; padding-left:1.2rem; padding-top:4.2rem; }
-      .modal-back-btn { left:1rem; top:1rem; }
+      .modal-back-btn {
+      width:48px; height:48px; border-radius:999px; padding:0; display:grid; place-items:center; left:1rem; top:1rem; }
       .institutional-modal-actions { justify-content:stretch; }
       .institutional-modal-actions .btn { width:100%; }
       .module-toolbar { align-items:stretch; }
@@ -408,7 +414,7 @@
           <h2 style="margin:0;">Configurações</h2>
           <p class="desc" style="margin:.25rem 0 0;">Aba por propriedade para evitar mistura de funções.</p>
         </div>
-        <button class="btn secondary" id="btnCloseSettings">Fechar</button>
+        <button class="modal-close-btn" id="btnCloseSettings" aria-label="Fechar" title="Fechar">×</button>
       </div>
       <div class="settings-layout">
         <div class="settings-tabs" id="settingsTabs">
@@ -968,7 +974,7 @@ function openSimpleInfoModal(title, text, push = true) {
               <h2 class="institutional-modal-title">${title}</h2>
               <p class="institutional-modal-subtitle">Explicação rápida do indicador.</p>
             </div>
-            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="notice">${text}</div>
@@ -989,7 +995,7 @@ function openSimpleInfoModal(title, text, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">${subtitle}</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="modal-list">
           ${items.length ? items.map(item => `<div class="modal-list-item">${item}</div>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
@@ -1007,7 +1013,7 @@ function openActionListModal(title, subtitle, items, push = true) {
               <h2 class="institutional-modal-title">${title}</h2>
               <p class="institutional-modal-subtitle">${subtitle}</p>
             </div>
-            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="modal-list">
@@ -1040,7 +1046,7 @@ function openStudentQuickView(studentId, push = true) {
               <h2 class="institutional-modal-title">${s.nome}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida do cadastro do aluno.</p>
             </div>
-            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero">
@@ -1093,7 +1099,7 @@ function openClassQuickView(classId, push = true) {
               <h2 class="institutional-modal-title">${c.nome}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida da turma cadastrada.</p>
             </div>
-            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero dark">
@@ -1135,7 +1141,7 @@ function openLessonQuickView(lessonId, push = true) {
               <h2 class="institutional-modal-title">${l.titulo}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida da aula planejada.</p>
             </div>
-            <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero">
@@ -1310,7 +1316,7 @@ function renderStudents() {
       return `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${s.id ? 'Editar aluno' : 'Novo aluno'}</h2><p class="desc" style="margin:.2rem 0 0;">Cadastro completo com foto e documentos.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Código</span><input id="f_codigo" type="number" value="${s.codigo || state.students.length+1}" /></label>
@@ -1381,7 +1387,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">Documentos do aluno</h2><p class="desc" style="margin:.2rem 0 0;">Upload de imagem e PDF vinculado ao cadastro.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="notice">Aluno: <strong>${student.nome}</strong></div>
         <div class="field-group" style="margin-top:1rem;"><label>Arquivo</label><input id="docFile" type="file" accept="image/*,.pdf,application/pdf" /></div>
@@ -1462,7 +1468,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${cls ? 'Editar turma' : 'Nova turma'}</h2><p class="desc" style="margin:.2rem 0 0;">Cadastro de capacidade, igreja e alunos vinculados.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Nome</span><input id="c_nome" value="${cls?.nome || ''}" /></label>
@@ -1574,7 +1580,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${lesson ? 'Editar aula' : 'Nova aula'}</h2><p class="desc" style="margin:.2rem 0 0;">Planejamento detalhado com data e turma.</p></div>
-          <button class="btn secondary" id="btnCloseEntity">Fechar</button>
+          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Título</span><input id="l_titulo" value="${lesson?.titulo || ''}" /></label>
