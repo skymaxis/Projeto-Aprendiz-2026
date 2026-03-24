@@ -208,6 +208,9 @@
       box-shadow:0 8px 22px rgba(15,23,42,.08);
     }
     .kpi-info-btn:hover { transform:translateY(-1px); }
+
+    .modal-back-btn { margin-right:.55rem; }
+    .institutional-modal-header-actions, .modal-inline-actions { display:flex; gap:.55rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
     .kpi.premium-card .value { font-size:2rem; line-height:1.05; padding-right:2.2rem; }
     .kpi-hint { margin-top:.45rem; color:var(--muted); font-size:.84rem; max-width:32ch; }
@@ -825,7 +828,7 @@
           <div class="kpi-grid">
             ${kpis.map(card => `
               <div class="card kpi premium-card kpi-card-shell">
-                <button class="kpi-info-btn" data-kpi-info="${card.key}" title="Entender indicador" aria-label="Entender indicador">!</button>
+                <button class="kpi-info-btn" data-kpi-info="${card.key}" title="Entender indicador" aria-label="Entender indicador">?</button>
                 <button class="kpi-button" data-kpi="${card.key}">
                   <div class="label">${card.label}</div>
                   <div class="value">${card.value}</div>
@@ -945,7 +948,7 @@
       }
     }
     
-function openSimpleInfoModal(title, text) {
+function openSimpleInfoModal(title, text, push = true) {
       $('#entityModalContent').innerHTML = `
         <div class="institutional-modal">
           <div class="institutional-modal-header">
@@ -961,18 +964,17 @@ function openSimpleInfoModal(title, text) {
           </div>
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openSimpleInfoModal(title, text, nextPush), push);
     }
-    function openChurchStudentsModal(churchName) {
+    function openChurchStudentsModal(churchName, push = true) {
       const students = sortBy(state.students.map(normalizeStudent).filter(s => (s.igreja || 'Não informado') === churchName), 'nome');
       openActionListModal(`Alunos da igreja: ${churchName}`, 'Visualização rápida dos alunos vinculados a esta igreja.', students.map(s => ({
         label: s.nome,
         sublabel: `${formatPhoneDisplay(s)}${s.email ? ` • ${s.email}` : ''}`,
         action: `student:${s.id}`
-      })));
+      })), push);
     }
-    function openInfoListModal(title, subtitle, items) {
+    function openInfoListModal(title, subtitle, items, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">${subtitle}</p></div>
@@ -982,11 +984,10 @@ function openSimpleInfoModal(title, text) {
           ${items.length ? items.map(item => `<div class="modal-list-item">${item}</div>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openInfoListModal(title, subtitle, items, nextPush), push);
     }
     
-function openActionListModal(title, subtitle, items) {
+function openActionListModal(title, subtitle, items, push = true) {
       $('#entityModalContent').innerHTML = `
         <div class="institutional-modal">
           <div class="institutional-modal-header">
@@ -1004,20 +1005,19 @@ function openActionListModal(title, subtitle, items) {
           </div>
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openActionListModal(title, subtitle, items, nextPush), push);
       $$('#entityModalContent [data-modal-action]').forEach(btn => btn.onclick = () => handleModalAction(btn.dataset.modalAction));
     }
     function handleModalAction(action) {
       const [kind, ...rest] = action.split(':');
       const id = rest.join(':');
-      if (kind === 'student') return openStudentQuickView(id);
-      if (kind === 'church') return openChurchStudentsModal(id);
-      if (kind === 'class') return openClassQuickView(id);
-      if (kind === 'lesson') return openLessonQuickView(id);
+      if (kind === 'student') return openStudentQuickView(id, true);
+      if (kind === 'church') return openChurchStudentsModal(id, true);
+      if (kind === 'class') return openClassQuickView(id, true);
+      if (kind === 'lesson') return openLessonQuickView(id, true);
     }
     
-function openStudentQuickView(studentId) {
+function openStudentQuickView(studentId, push = true) {
       const s = normalizeStudent(state.students.find(x => x.id === studentId) || {});
       if (!s.id) return;
       const initials = (s.nome || 'A').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
@@ -1065,13 +1065,12 @@ function openStudentQuickView(studentId) {
           </div>
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openStudentQuickView(studentId, nextPush), push);
       $('#btnStudentPdfQuick').onclick = ()=>printStudentPdf(s);
-      $('#btnStudentEditQuick').onclick = ()=>openStudentModal(s);
+      $('#btnStudentEditQuick').onclick = ()=>openStudentModal(s, true);
     }
     
-function openClassQuickView(classId) {
+function openClassQuickView(classId, push = true) {
       const c = state.classes.find(x => x.id === classId);
       if (!c) return;
       const inscritos = sortBy((c.inscritos || []).map(id => normalizeStudent(state.students.find(s => s.id === id) || {})).filter(s => s.id), 'nome');
@@ -1106,15 +1105,14 @@ function openClassQuickView(classId) {
           </div>
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
-      $('#modalClassEdit').onclick = ()=>openClassModal(c);
+      mountEntityModal((nextPush = false) => openClassQuickView(classId, nextPush), push);
+      $('#modalClassEdit').onclick = ()=>openClassModal(c, true);
       $('#modalClassCall').onclick = ()=>openAttendanceSheet(c);
       $('#modalClassPdf').onclick = ()=>printClassPdf(c);
       $$('#entityModalContent [data-modal-action]').forEach(btn => btn.onclick = () => handleModalAction(btn.dataset.modalAction));
     }
     
-function openLessonQuickView(lessonId) {
+function openLessonQuickView(lessonId, push = true) {
       const l = state.lessons.find(x => x.id === lessonId);
       if (!l) return;
       const turma = state.classes.find(c => c.id === l.turma_id);
@@ -1143,10 +1141,9 @@ function openLessonQuickView(lessonId) {
           </div>
         </div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
-      $('#modalLessonEdit').onclick = ()=>openLessonModal(l);
-      if (turma && $('#modalLessonClass')) $('#modalLessonClass').onclick = ()=>openClassQuickView(turma.id);
+      mountEntityModal((nextPush = false) => openLessonQuickView(lessonId, nextPush), push);
+      $('#modalLessonEdit').onclick = ()=>openLessonModal(l, true);
+      if (turma && $('#modalLessonClass')) $('#modalLessonClass').onclick = ()=>openClassQuickView(turma.id, true);
     }
 
     function destroyChart(id) {
@@ -1333,11 +1330,10 @@ function renderStudents() {
         </div>
       `;
     }
-    function openStudentModal(student) {
+    function openStudentModal(student, push = true) {
       if (!can('students','editor') && !student) return;
       $('#entityModalContent').innerHTML = studentFormTemplate(student);
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openStudentModal(student, nextPush), push);
       $('#f_status').value = student?.status || 'Ativo';
       $('#btnSaveStudent').onclick = async () => {
         const rec = normalizeStudent({
@@ -1370,7 +1366,7 @@ function renderStudents() {
         closeEntityModal();
       };
     }
-    function openDocsModal(student) {
+    function openDocsModal(student, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">Documentos do aluno</h2><p class="desc" style="margin:.2rem 0 0;">Upload de imagem e PDF vinculado ao cadastro.</p></div>
@@ -1381,8 +1377,7 @@ function renderStudents() {
         <div class="actions-under" style="margin-top:1rem;"><button class="btn" id="btnSaveDoc" ${can('students','editor') ? '' : 'disabled'}>Anexar</button></div>
         <div class="item-list" id="docList" style="margin-top:1rem;"></div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openDocsModal(student, nextPush), push);
       function paint() {
         $('#docList').innerHTML = (student.documentos || []).map((d,i)=>`
           <div class="item"><div class="item-title">${d.nome}</div><div class="muted">${d.tipo}</div><div class="actions-under"><a class="btn secondary" href="${d.url}" target="_blank">Abrir</a><button class="btn danger" data-rm="${i}" ${can('students','editor') ? '' : 'disabled'}>Excluir</button></div></div>
@@ -1452,7 +1447,7 @@ function renderStudents() {
       $('#classSearch').oninput=e=>paint(e.target.value);
       $('#btnAddClass').onclick=()=>openClassModal();
     }
-    function openClassModal(cls) {
+    function openClassModal(cls, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${cls ? 'Editar turma' : 'Nova turma'}</h2><p class="desc" style="margin:.2rem 0 0;">Cadastro de capacidade, igreja e alunos vinculados.</p></div>
@@ -1472,8 +1467,7 @@ function renderStudents() {
         </div>
         <div class="actions-under" style="margin-top:1rem;"><button class="btn" id="btnSaveClass" ${can('classes','editor') ? '' : 'disabled'}>Salvar</button></div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openClassModal(cls, nextPush), push);
       $('#c_status').value = cls?.status || 'Ativa';
       $('#btnSaveClass').onclick = async () => {
         const rec = {
@@ -1565,7 +1559,7 @@ function renderStudents() {
       $('#selectedDateList').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openLessonModal(state.lessons.find(x=>x.id===b.dataset.edit)));
       $('#selectedDateList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteLesson(b.dataset.del));
     }
-    function openLessonModal(lesson) {
+    function openLessonModal(lesson, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${lesson ? 'Editar aula' : 'Nova aula'}</h2><p class="desc" style="margin:.2rem 0 0;">Planejamento detalhado com data e turma.</p></div>
@@ -1587,8 +1581,7 @@ function renderStudents() {
         </div>
         <div class="actions-under" style="margin-top:1rem;"><button class="btn" id="btnSaveLesson" ${can('lessons','editor') ? '' : 'disabled'}>Salvar</button></div>
       `;
-      $('#entityModal').classList.add('open');
-      $('#btnCloseEntity').onclick = closeEntityModal;
+      mountEntityModal((nextPush = false) => openLessonModal(lesson, nextPush), push);
       $('#l_turma').value = lesson?.turma_id || state.classes[0]?.id || '';
       $('#l_status').value = lesson?.status || 'Planejada';
       $('#btnSaveLesson').onclick = async () => {
@@ -1823,13 +1816,47 @@ function renderStudents() {
         renderPermissionsTable();
       });
     }
+
+    let entityModalStack = [];
+    let currentEntityRenderer = null;
+    function mountEntityModal(renderer, push = true) {
+      if (push && currentEntityRenderer) entityModalStack.push(currentEntityRenderer);
+      currentEntityRenderer = renderer;
+      $('#entityModal').classList.add('open');
+      wireEntityModalNav();
+    }
+    function wireEntityModalNav() {
+      const closeButtons = $$('#entityModalContent #btnCloseEntity');
+      closeButtons.forEach((btn) => {
+        btn.dataset.role = 'close-entity';
+        btn.onclick = closeEntityModal;
+        const parent = btn.parentElement;
+        if (!parent) return;
+        const oldBack = parent.querySelector('.modal-back-btn');
+        if (oldBack) oldBack.remove();
+        if (entityModalStack.length) {
+          const back = document.createElement('button');
+          back.className = 'btn secondary modal-back-btn';
+          back.type = 'button';
+          back.innerHTML = '← Voltar';
+          back.onclick = goBackEntityModal;
+          parent.insertBefore(back, btn);
+        }
+      });
+    }
+    function goBackEntityModal() {
+      const previous = entityModalStack.pop();
+      if (!previous) return closeEntityModal();
+      previous(false);
+    }
+
     function openSettings() {
       $('#settingsModal').classList.add('open');
       populateSettingsFields();
       renderPermissionsTable();
     }
     function closeSettings() { $('#settingsModal').classList.remove('open'); }
-    function closeEntityModal() { $('#entityModal').classList.remove('open'); }
+    function closeEntityModal() { entityModalStack = []; currentEntityRenderer = null; $('#entityModal').classList.remove('open'); }
     function populateSettingsFields() {
       $('#cfgTheme').value = settings.theme;
       $('#cfgPrimary').value = settings.primary;
