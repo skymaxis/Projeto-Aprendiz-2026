@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto Aprendiz • Gestão de Alunos</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card card">
+      <div class="brand-lockup">
+        <div class="brand-mark">PA</div>
+        <div>
+          <p class="eyebrow">GitHub + Supabase</p>
+          <h1>Projeto Aprendiz</h1>
+          <p class="muted">Nova base profissional construída a partir dos arquivos enviados.</p>
+        </div>
+      </div>
+
+      <div class="grid-form two">
+        <label>
+          <span>E-mail</span>
+          <input id="loginEmail" type="email" placeholder="voce@dominio.com" />
+        </label>
+        <label>
+          <span>Senha</span>
+          <input id="loginPassword" type="password" placeholder="Sua senha" />
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button id="btnLogin" class="btn">Entrar</button>
+        <button id="btnMagicLink" class="btn btn-secondary">Link mágico</button>
+        <button id="btnDemo" class="btn btn-secondary">Modo demonstração</button>
+      </div>
+
+      <div class="stack-sm top-gap">
+        <label>
+          <span>URL do Supabase</span>
+          <input id="cfgSupabaseUrl" placeholder="https://seu-projeto.supabase.co" />
+        </label>
+        <label>
+          <span>Anon key</span>
+          <textarea id="cfgSupabaseAnon" rows="4" placeholder="Cole a chave pública do projeto"></textarea>
+        </label>
+        <label>
+          <span>E-mail do administrador principal</span>
+          <input id="cfgOwnerEmail" type="email" placeholder="admin@dominio.com" />
+        </label>
+      </div>
+
+      <div id="loginNotice" class="notice top-gap">Você pode usar o modo demonstração imediatamente e depois conectar o Supabase.</div>
+    </div>
+  </div>
+
+  <div id="appRoot" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand-lockup compact">
+        <div class="brand-mark small">PA</div>
+        <div>
+          <p class="eyebrow">Sistema</p>
+          <strong>Projeto Aprendiz</strong>
+        </div>
+      </div>
+
+      <nav id="menu" class="menu"></nav>
+
+      <div class="sidebar-footer">
+        <div id="userBox" class="user-box">Não autenticado</div>
+        <button id="btnSync" class="btn btn-secondary btn-full">Sincronizar</button>
+        <button id="btnExportExcel" class="btn btn-secondary btn-full">Exportar Excel</button>
+        <button id="btnExportPdf" class="btn btn-secondary btn-full">Exportar PDF</button>
+        <button id="btnLogout" class="btn btn-danger btn-full">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar card">
+        <div>
+          <p class="eyebrow" id="pageEyebrow">Visão geral</p>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageDesc" class="muted">Indicadores executivos, ranking de igrejas e evolução das inscrições.</p>
+        </div>
+        <div class="actions-row wrap">
+          <button id="btnNewPrimary" class="btn">Novo registro</button>
+          <button id="btnOpenSettings" class="btn btn-secondary">Configurações</button>
+        </div>
+      </header>
+
+      <section id="pageContent" class="page-content"></section>
+    </main>
+  </div>
+
+  <dialog id="entityDialog" class="dialog">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <div>
+          <p id="dialogEyebrow" class="eyebrow">Cadastro</p>
+          <h3 id="dialogTitle">Formulário</h3>
+        </div>
+        <button id="btnCloseDialog" class="icon-btn">×</button>
+      </div>
+      <div id="dialogBody" class="dialog-body"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>
