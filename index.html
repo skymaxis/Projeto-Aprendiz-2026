@@ -152,7 +152,7 @@
     }
     .modal.open { display:flex; }
     .modal-content {
-      width:min(1120px, 100%); max-height:92vh; overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow); padding:1rem;
+      position:relative; width:min(1120px, 100%); max-height:92vh; overflow:hidden; background:var(--card); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow); padding:0;
     }
     .settings-layout { display:grid; grid-template-columns: 220px 1fr; gap:1rem; }
     .settings-tabs { display:grid; gap:.45rem; align-content:start; position:sticky; top:0; }
@@ -212,12 +212,10 @@
     .kpi-info-btn:hover { transform:translateY(-1px); }
 
     .modal-back-btn {
-      width:48px; height:48px; border-radius:999px; padding:0; display:grid; place-items:center;
-      position:absolute; left:1rem; top:1rem; width:2.5rem; height:2.5rem; min-width:2.5rem; padding:0;
-      border-radius:999px; display:grid; place-items:center; z-index:3;
-      box-shadow:0 8px 20px rgba(15,23,42,.08);
+      position:absolute; left:1rem; top:1rem; border:none; background:transparent; color:var(--text); cursor:pointer;
+      box-shadow:none; z-index:6; padding:0; width:auto; height:auto; min-width:0; display:grid; place-items:center;
     }
-    .modal-back-btn .arrow-only { font-size:1.8rem; line-height:1; font-weight:900; }
+    .modal-back-btn .arrow-only { display:block; font-size:2.25rem; line-height:.82; font-weight:900; transform:scaleX(1.14); }
     .modal-back-btn .back-label { display:none; }
     .institutional-modal-header-actions, .modal-inline-actions { display:flex; gap:.55rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .card.premium-card { padding:clamp(.95rem, 2.2vw, 1.15rem); border-radius:24px; background:linear-gradient(180deg, var(--card), var(--card-2)); }
@@ -286,6 +284,9 @@
     .student-meta .item-title { font-size:1.05rem; }
     .modal-content { padding:0; overflow:hidden; }
     .modal-scroll { max-height:92vh; overflow:auto; padding:1.1rem; }
+    .settings-scroll { padding:1.1rem; }
+    .settings-header { position:sticky; top:0; z-index:4; display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; margin:0 0 1rem; padding:0 4rem .9rem 0; background:linear-gradient(180deg, var(--card) 78%, rgba(255,255,255,0)); }
+    body.dark .settings-header { background:linear-gradient(180deg, var(--card) 78%, rgba(15,27,45,0)); }
     .institutional-modal { display:grid; gap:1rem; }
     .institutional-modal-header { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; padding:1.2rem 1.2rem 0 4.3rem; position:relative; }
     .institutional-modal-eyebrow { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--muted); }
@@ -293,7 +294,7 @@
     .institutional-modal-subtitle { margin:.3rem 0 0; color:var(--muted); }
     .institutional-modal-body { padding:0 1.2rem 1.2rem; display:grid; gap:1rem; }
     .institutional-modal-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.7rem; padding:0 1.2rem 1.2rem; }
-    .modal-close-btn { position:absolute; top:1rem; right:1rem; border:none; background:transparent; color:#dc2626; display:grid; place-items:center; cursor:pointer; box-shadow:none; font-size:2rem; font-weight:900; line-height:1; z-index:3; padding:0; width:auto; height:auto; }
+    .modal-close-btn { position:absolute; top:1rem; right:1rem; border:none; background:transparent; color:#dc2626; display:grid; place-items:center; cursor:pointer; box-shadow:none; font-size:2.1rem; font-weight:900; line-height:1; z-index:6; padding:0; width:auto; height:auto; }
     .modal-close-btn:hover { transform:translateY(-1px) scale(1.03); filter:none; }
     .quick-view-grid { gap:1rem; }
     .quick-view-hero { border:1px solid var(--line); border-radius:26px; padding:1.15rem; background:linear-gradient(180deg, var(--card), var(--card-2)); box-shadow:var(--shadow); }
@@ -315,11 +316,17 @@
     @media (max-width: 760px) {
       .quick-view-grid-2 { grid-template-columns:1fr; }
       .institutional-modal-header { flex-direction:column; padding-left:1.2rem; padding-top:4.2rem; }
-      .modal-back-btn {
-      width:48px; height:48px; border-radius:999px; padding:0; display:grid; place-items:center; left:1rem; top:1rem; }
+      .modal-back-btn { left:.9rem; top:.9rem; }
+      .modal-back-btn .arrow-only { font-size:2.05rem; }
+      .modal-close-btn { top:.9rem; right:.9rem; }
       .institutional-modal-actions { justify-content:stretch; }
       .institutional-modal-actions .btn { width:100%; }
       .module-toolbar { align-items:stretch; }
+      .settings-scroll { padding:1rem; }
+      .settings-header { padding-right:3rem; margin-bottom:.85rem; }
+      .settings-tabs { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(180px, 78vw); overflow-x:auto; grid-template-columns:none !important; padding-bottom:.25rem; }
+      .settings-tabs button { min-height:96px; }
+      .settings-pane-card { padding:.95rem; }
     }
 
     .item-title, .page-head h1, .page-head p, .dashboard-title-wrap p, .muted, .notice, .modal-list-item { overflow-wrap:anywhere; word-break:normal; }
@@ -328,7 +335,7 @@
       .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .span-8, .span-6, .span-4 { grid-column: span 12; }
       .split, .two-col, .field-row, .field-row-3, .settings-layout { grid-template-columns:1fr; }
-      .settings-tabs { position:static; grid-template-columns: repeat(2, 1fr); }
+      .settings-tabs { position:static; grid-template-columns: repeat(2, minmax(0,1fr)); }
       .kpi-info-btn { top:.7rem; right:.7rem; }
     }
     @media (max-width: 860px) {
@@ -409,12 +416,13 @@
 
   <div id="settingsModal" class="modal">
     <div class="modal-content">
-      <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
+      <button class="modal-close-btn" id="btnCloseSettings" aria-label="Fechar" title="Fechar">×</button>
+      <div class="modal-scroll settings-scroll">
+      <div class="settings-header">
         <div>
           <h2 style="margin:0;">Configurações</h2>
           <p class="desc" style="margin:.25rem 0 0;">Aba por propriedade para evitar mistura de funções.</p>
         </div>
-        <button class="modal-close-btn" id="btnCloseSettings" aria-label="Fechar" title="Fechar">×</button>
       </div>
       <div class="settings-layout">
         <div class="settings-tabs" id="settingsTabs">
@@ -501,10 +509,11 @@
           </section>
         </div>
       </div>
+      </div>
     </div>
   </div>
 
-  <div id="entityModal" class="modal"><div class="modal-content"><div class="modal-scroll" id="entityModalContent"></div></div></div>
+  <div id="entityModal" class="modal"><div class="modal-content"><button class="modal-close-btn" id="btnCloseEntityFloating" aria-label="Fechar" title="Fechar">×</button><div class="modal-scroll" id="entityModalContent"></div></div></div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -974,7 +983,7 @@ function openSimpleInfoModal(title, text, push = true) {
               <h2 class="institutional-modal-title">${title}</h2>
               <p class="institutional-modal-subtitle">Explicação rápida do indicador.</p>
             </div>
-            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+            <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="notice">${text}</div>
@@ -995,7 +1004,7 @@ function openSimpleInfoModal(title, text, push = true) {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${title}</h2><p class="desc" style="margin:.2rem 0 0;">${subtitle}</p></div>
-          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+          <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="modal-list">
           ${items.length ? items.map(item => `<div class="modal-list-item">${item}</div>`).join('') : '<div class="notice">Nenhum registro disponível.</div>'}
@@ -1013,7 +1022,7 @@ function openActionListModal(title, subtitle, items, push = true) {
               <h2 class="institutional-modal-title">${title}</h2>
               <p class="institutional-modal-subtitle">${subtitle}</p>
             </div>
-            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+            <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="modal-list">
@@ -1046,7 +1055,7 @@ function openStudentQuickView(studentId, push = true) {
               <h2 class="institutional-modal-title">${s.nome}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida do cadastro do aluno.</p>
             </div>
-            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+            <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero">
@@ -1099,7 +1108,7 @@ function openClassQuickView(classId, push = true) {
               <h2 class="institutional-modal-title">${c.nome}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida da turma cadastrada.</p>
             </div>
-            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+            <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero dark">
@@ -1141,7 +1150,7 @@ function openLessonQuickView(lessonId, push = true) {
               <h2 class="institutional-modal-title">${l.titulo}</h2>
               <p class="institutional-modal-subtitle">Visualização rápida da aula planejada.</p>
             </div>
-            <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+            <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
           </div>
           <div class="institutional-modal-body">
             <div class="quick-view-hero">
@@ -1316,7 +1325,7 @@ function renderStudents() {
       return `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${s.id ? 'Editar aluno' : 'Novo aluno'}</h2><p class="desc" style="margin:.2rem 0 0;">Cadastro completo com foto e documentos.</p></div>
-          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+          <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Código</span><input id="f_codigo" type="number" value="${s.codigo || state.students.length+1}" /></label>
@@ -1387,7 +1396,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">Documentos do aluno</h2><p class="desc" style="margin:.2rem 0 0;">Upload de imagem e PDF vinculado ao cadastro.</p></div>
-          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+          <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="notice">Aluno: <strong>${student.nome}</strong></div>
         <div class="field-group" style="margin-top:1rem;"><label>Arquivo</label><input id="docFile" type="file" accept="image/*,.pdf,application/pdf" /></div>
@@ -1468,7 +1477,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${cls ? 'Editar turma' : 'Nova turma'}</h2><p class="desc" style="margin:.2rem 0 0;">Cadastro de capacidade, igreja e alunos vinculados.</p></div>
-          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+          <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Nome</span><input id="c_nome" value="${cls?.nome || ''}" /></label>
@@ -1580,7 +1589,7 @@ function renderStudents() {
       $('#entityModalContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem;">
           <div><h2 style="margin:0;">${lesson ? 'Editar aula' : 'Nova aula'}</h2><p class="desc" style="margin:.2rem 0 0;">Planejamento detalhado com data e turma.</p></div>
-          <button class="modal-close-btn" id="btnCloseEntity" aria-label="Fechar" title="Fechar">×</button>
+          <button class="modal-close-btn" data-close-entity="1" aria-label="Fechar" title="Fechar">×</button>
         </div>
         <div class="field-row-3">
           <label class="field-group"><span>Título</span><input id="l_titulo" value="${lesson?.titulo || ''}" /></label>
@@ -1844,27 +1853,19 @@ function renderStudents() {
     }
     function wireEntityModalNav() {
       const modalContent = $('#entityModalContent');
-      $$('#entityModalContent .modal-back-btn').forEach(btn => btn.remove());
-      const closeButtons = $$('#entityModalContent #btnCloseEntity');
-      closeButtons.forEach((btn) => {
-        btn.dataset.role = 'close-entity';
-        btn.onclick = closeEntityModal;
-      });
-      if (!entityModalStack.length || !closeButtons.length) return;
-      const targetHeader = closeButtons[0].closest('.institutional-modal-header') || closeButtons[0].parentElement || modalContent;
-      if (!targetHeader) return;
-      targetHeader.style.position = 'relative';
-      if (!window.matchMedia('(max-width: 760px)').matches) {
-        targetHeader.style.paddingLeft = '4.3rem';
-      }
+      const modalShell = $('#entityModal .modal-content');
+      $$('#entityModal .modal-back-btn').forEach(btn => btn.remove());
+      const closeBtn = $('#btnCloseEntityFloating');
+      if (closeBtn) closeBtn.onclick = closeEntityModal;
+      if (!entityModalStack.length) return;
       const back = document.createElement('button');
-      back.className = 'btn secondary modal-back-btn';
+      back.className = 'modal-back-btn';
       back.type = 'button';
       back.title = 'Voltar';
       back.setAttribute('aria-label', 'Voltar');
       back.innerHTML = '<span class="arrow-only">←</span><span class="back-label">Voltar</span>';
       back.onclick = goBackEntityModal;
-      targetHeader.insertBefore(back, targetHeader.firstChild);
+      modalShell.appendChild(back);
     }
     function goBackEntityModal() {
       const previous = entityModalStack.pop();
@@ -1878,7 +1879,7 @@ function renderStudents() {
       renderPermissionsTable();
     }
     function closeSettings() { $('#settingsModal').classList.remove('open'); }
-    function closeEntityModal() { entityModalStack = []; currentEntityRenderer = null; $('#entityModal').classList.remove('open'); }
+    function closeEntityModal() { entityModalStack = []; currentEntityRenderer = null; $('#entityModal').classList.remove('open'); const back=$('#entityModal .modal-back-btn'); if(back) back.remove(); }
     function populateSettingsFields() {
       $('#cfgTheme').value = settings.theme;
       $('#cfgPrimary').value = settings.primary;
@@ -2004,6 +2005,7 @@ function renderStudents() {
     $('#btnLogout').onclick = logout;
     $('#btnSettings').onclick = ()=>{ if (can('settings','viewer') || state.demoMode) openSettings(); };
     $('#btnCloseSettings').onclick = closeSettings;
+    const floatingClose = $('#btnCloseEntityFloating'); if (floatingClose) floatingClose.onclick = closeEntityModal;
     $('#btnMenu').onclick = ()=>$('#sidebar').classList.toggle('open');
     $('#btnManualSync').onclick = flushSync;
     $('#btnExportXlsx').onclick = exportExcel;
