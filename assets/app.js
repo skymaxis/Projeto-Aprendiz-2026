@@ -2,9 +2,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const STORAGE_KEY = 'projeto_aprendiz_github_supabase_settings_v1';
 const defaults = {
-  supabaseUrl: '',
-  supabaseAnon: '',
-  ownerEmail: '',
+  supabaseUrl: 'https://cvvywfitistbcqnsiyws.supabase.co',
+  supabaseAnon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2dnl3Zml0aXN0YmNxbnNpeXdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA1NDYsImV4cCI6MjA5MDAzNjU0Nn0.AjmJML-cxw40WJsBiuqidSPebLF7cBDVPMGBmKBAvqU',
+  ownerEmail: 'skymaxi@hotmail.com',
   bucket: 'documentos-alunos',
   theme: 'light'
 };
